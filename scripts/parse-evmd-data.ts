@@ -234,7 +234,7 @@ writeFileSync(
   'utf-8'
 );
 
-console.log('✅ Generated params.ts from evmd-comprehensive-data.md');
+console.log(' Generated params.ts from evmd-comprehensive-data.md');
 console.log(`   - VM params: ${vmParams.length}`);
 console.log(`   - ERC20 params: ${erc20Params.length}`);
 console.log(`   - Feemarket params: ${feemarketParams.length}`);

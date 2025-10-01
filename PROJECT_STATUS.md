@@ -1,6 +1,6 @@
 # Chain Orchestrator - Project Status
 
-## ✅ Completed Setup
+##  Completed Setup
 
 ### 1. Core Infrastructure
 - **Framework**: Vite + React 19 + TypeScript
@@ -47,11 +47,11 @@ chain-orchestrator/
 │   │
 │   ├── lib/
 │   │   ├── chains/evmd/
-│   │   │   ├── params.ts            # ✅ Complete parameter schemas
-│   │   │   └── evmd-comprehensive-data.md  # ✅ Source documentation
+│   │   │   ├── params.ts            #  Complete parameter schemas
+│   │   │   └── evmd-comprehensive-data.md  #  Source documentation
 │   │   ├── wallet/          # Keplr/Leap integration (planned)
 │   │   ├── tx/              # Transaction builders (planned)
-│   │   └── utils/           # ✅ Utility functions
+│   │   └── utils/           #  Utility functions
 │   │
 │   ├── hooks/               # Custom React hooks (planned)
 │   ├── pages/               # Route pages (planned)
@@ -59,12 +59,12 @@ chain-orchestrator/
 │   └── types/               # TypeScript types (planned)
 │
 ├── scripts/
-│   └── parse-evmd-data.ts   # ✅ Data parser
+│   └── parse-evmd-data.ts   #  Data parser
 │
-└── @/components/ui/         # ✅ All shadcn components
+└── @/components/ui/         #  All shadcn components
 ```
 
-### 6. EVMD Parameter Schemas (✅ Complete)
+### 6. EVMD Parameter Schemas ( Complete)
 
 **VM Module** (6 parameters):
 - `evm_denom` - Token denomination
@@ -96,23 +96,23 @@ All parameters include:
 
 ---
 
-## 📋 Available shadcn/ui Components
+##  Available shadcn/ui Components
 
 ### Form Components
-✅ button, form, input, textarea, select, checkbox, radio-group, switch, slider, label
+ button, form, input, textarea, select, checkbox, radio-group, switch, slider, label
 
 ### Layout Components
-✅ card, accordion, tabs, separator, scroll-area, dialog, sheet, sonner (toasts)
+ card, accordion, tabs, separator, scroll-area, dialog, sheet, sonner (toasts)
 
 ### Display Components
-✅ table, badge, avatar, tooltip, hover-card, popover, alert, alert-dialog
+ table, badge, avatar, tooltip, hover-card, popover, alert, alert-dialog
 
 ### Navigation Components
-✅ command (palette), dropdown-menu, pagination, breadcrumb, progress, skeleton, collapsible, toggle
+ command (palette), dropdown-menu, pagination, breadcrumb, progress, skeleton, collapsible, toggle
 
 ---
 
-## 🎯 Next Steps (Implementation Plan)
+##  Next Steps (Implementation Plan)
 
 ### Phase 1: Custom Components (Week 1)
 - [ ] AccessControlEditor - Permission policy UI
@@ -154,7 +154,7 @@ All parameters include:
 
 ---
 
-## 🔑 Key Features
+##  Key Features
 
 ### 1. Type-Safe Parameter Management
 All EVMD parameters are:
@@ -177,7 +177,7 @@ All EVMD parameters are:
 
 ---
 
-## 📦 Installed Packages
+##  Installed Packages
 
 ### Core (React Ecosystem)
 ```json
@@ -222,7 +222,7 @@ All EVMD parameters are:
 
 ---
 
-## 🚀 How to Run
+##  How to Run
 
 ```bash
 # Install dependencies (already done)
@@ -240,7 +240,7 @@ npm run preview
 
 ---
 
-## 📝 Usage Guide
+##  Usage Guide
 
 ### Current Capabilities
 
@@ -286,7 +286,7 @@ const proposal = {
 
 ---
 
-## 🎨 Branding TODO
+##  Branding TODO
 
 - [ ] Replace Vite favicon with Cosmos logo
 - [ ] Add Cosmos logo (light/dark mode variants)
@@ -296,26 +296,26 @@ const proposal = {
 
 ---
 
-## 📊 Progress Summary
+##  Progress Summary
 
 | Category | Status | Completion |
 |----------|--------|------------|
-| **Infrastructure** | ✅ Complete | 100% |
-| **Dependencies** | ✅ Complete | 100% |
-| **shadcn Components** | ✅ Complete | 100% |
-| **Project Structure** | ✅ Complete | 100% |
-| **EVMD Schemas** | ✅ Complete | 100% |
-| **Custom Components** | ⏳ Planned | 0% |
-| **Governance UI** | ⏳ Planned | 0% |
-| **Query/TX Forms** | ⏳ Planned | 0% |
-| **Validator Tools** | ⏳ Planned | 0% |
-| **Wallet Integration** | ⏳ Planned | 0% |
+| **Infrastructure** |  Complete | 100% |
+| **Dependencies** |  Complete | 100% |
+| **shadcn Components** |  Complete | 100% |
+| **Project Structure** |  Complete | 100% |
+| **EVMD Schemas** |  Complete | 100% |
+| **Custom Components** |  Planned | 0% |
+| **Governance UI** |  Planned | 0% |
+| **Query/TX Forms** |  Planned | 0% |
+| **Validator Tools** |  Planned | 0% |
+| **Wallet Integration** |  Planned | 0% |
 
 **Overall Progress**: 50% (foundation complete, implementation pending)
 
 ---
 
-## 🔗 Repository
+##  Repository
 
 **GitHub**: https://github.com/Cordtus/hack-cosmos-project.git
 **Branch**: main

@@ -8,6 +8,8 @@ import { ModulesVM } from '@/pages/ModulesVM';
 import { ModulesERC20 } from '@/pages/ModulesERC20';
 import { ModulesFeemarket } from '@/pages/ModulesFeemarket';
 import { TransactionsSend } from '@/pages/TransactionsSend';
+import { TransactionsMultisend } from '@/pages/TransactionsMultisend';
+import { TransactionsMultisig } from '@/pages/TransactionsMultisig';
 import { Toaster } from '@/components/ui/sonner';
 
 const queryClient = new QueryClient({
@@ -38,6 +40,8 @@ function App() {
 
             {/* Transaction Routes */}
             <Route path="transactions/send" element={<TransactionsSend />} />
+            <Route path="transactions/multisend" element={<TransactionsMultisend />} />
+            <Route path="transactions/multisig" element={<TransactionsMultisig />} />
           </Route>
         </Routes>
         <Toaster />

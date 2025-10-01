@@ -96,6 +96,12 @@ const navGroups: Array<{ label: string; items: NavItem[] }> = [
         icon: Users,
         description: 'Batch transactions',
       },
+      {
+        title: 'Multisig',
+        href: '/transactions/multisig',
+        icon: Shield,
+        description: 'Multisig wallets',
+      },
     ],
   },
   {

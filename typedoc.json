@@ -1,10 +1,18 @@
 {
-  "entryPoints": ["src/lib/governance"],
+  "entryPoints": [
+    "src/lib/chains",
+    "src/lib/governance",
+    "src/lib/tx",
+    "src/lib/utils",
+    "src/lib/wallet"
+  ],
   "entryPointStrategy": "expand",
   "out": "docs",
-  "name": "Chain Orchestrator - Governance Module Documentation",
-  "exclude": ["**/node_modules/**", "**/dist/**"],
+  "name": "Chain Orchestrator - Complete Documentation",
+  "exclude": ["**/node_modules/**", "**/dist/**", "**/*.test.ts", "**/*.spec.ts"],
   "excludeExternals": true,
   "includeVersion": true,
-  "readme": "none"
+  "readme": "none",
+  "categorizeByGroup": true,
+  "groupOrder": ["Governance", "Chains", "Wallet", "Transactions", "Utilities", "*"]
 }

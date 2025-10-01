@@ -36,7 +36,7 @@ All stores use TypeScript for type safety. Wallet and chain stores use `zustand/
 
 ### Component Architecture
 
-- **UI Layer**: 35+ shadcn/ui components in `src/components/ui/` - DO NOT modify these, they are managed by shadcn CLI
+- **UI Layer**: 34+ shadcn/ui components in `src/components/ui/` - DO NOT modify these, they are managed by shadcn CLI
 - **Custom Components**: Domain-specific components in `src/components/custom/` for blockchain UIs (AddressInput, CoinInput, PrecompileSelector, etc.)
 - **Feature Components**: Organized by domain:
   - `src/components/governance/` - Governance proposal creation and voting UIs

@@ -11,12 +11,19 @@ import { Info, AlertTriangle } from 'lucide-react';
 import type { SoftwareUpgradeProposal } from '@/lib/governance/types';
 
 const softwareUpgradeSchema = z.object({
-  name: z.string().min(1, 'Upgrade name is required'),
+  name: z.string().min(1, 'Upgrade name is required').regex(/^[a-zA-Z0-9._-]+$/, 'Name must be alphanumeric with dots, underscores, or hyphens'),
   height: z.string().min(1, 'Height is required').refine((val) => {
     const num = parseInt(val, 10);
     return !isNaN(num) && num > 0;
   }, 'Height must be a positive number'),
-  info: z.string().min(1, 'Upgrade info is required'),
+  info: z.string().min(1, 'Upgrade info is required').refine((val) => {
+    try {
+      const parsed = JSON.parse(val);
+      return typeof parsed === 'object' && parsed !== null;
+    } catch {
+      return false;
+    }
+  }, 'Info must be valid JSON'),
 });
 
 type SoftwareUpgradeFormValues = z.infer<typeof softwareUpgradeSchema>;
@@ -110,17 +117,17 @@ export function SoftwareUpgradeForm({ onSubmit, defaultValues }: SoftwareUpgrade
               name="info"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Upgrade Info</FormLabel>
+                  <FormLabel>Upgrade Info (JSON)</FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
-                      placeholder='{"binaries":{"linux/amd64":"https://github.com/org/repo/releases/download/v2.0.0/binary"}}'
-                      rows={6}
+                      placeholder='{"binaries": {"darwin/amd64": "https://github.com/cosmos/gaia/releases/download/v25.1.0/gaiad-v25.1.0-darwin-amd64?checksum=sha256:baeebe95e3db3b01610a79769105a0ed92efd7dabbe7ffe622a778ac46201948", "darwin/arm64": "https://github.com/cosmos/gaia/releases/download/v25.1.0/gaiad-v25.1.0-darwin-arm64?checksum=sha256:1f18dd615a34fb63dcb826b9ddd0423adfe0fbc953c95fd0637c9fbadca4cd1f", "linux/amd64": "https://github.com/cosmos/gaia/releases/download/v25.1.0/gaiad-v25.1.0-linux-amd64?checksum=sha256:1bd6bc72fd98b5ef7a6001a0e42850ab4dd1d32a63a9627ab72834ab61ed4f76"}}'
+                      rows={8}
                       className="font-mono text-sm"
                     />
                   </FormControl>
                   <FormDescription>
-                    JSON string containing upgrade information, typically including binary download URLs and checksums. This is used by validators to automatically fetch the new binary.
+                    Valid JSON containing upgrade metadata. Typically includes binary download URLs with SHA256 checksums for different platforms (darwin/amd64, darwin/arm64, linux/amd64). Validators use this to automatically download and verify the upgrade binary.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

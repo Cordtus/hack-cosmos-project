@@ -9,19 +9,52 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { ProposalTypeSelector } from './ProposalTypeSelector';
+import { ProposalTypeDropdown } from './ProposalTypeDropdown';
 import { ParameterSelector } from './ParameterSelector';
 import { TextProposalForm } from './TextProposalForm';
 import { CommunityPoolSpendForm } from './CommunityPoolSpendForm';
 import { SoftwareUpgradeForm } from './SoftwareUpgradeForm';
+import { IbcClientParamsForm } from './IbcClientParamsForm';
+import { EvmRegisterPreinstallsForm } from './EvmRegisterPreinstallsForm';
+import { EvmRegisterErc20Form } from './EvmRegisterErc20Form';
+import { EvmToggleConversionForm } from './EvmToggleConversionForm';
+import { CustomMessageForm } from './CustomMessageForm';
 import { ProposalJsonPreview } from '@/components/custom/ProposalJsonPreview';
 import { CoinInput } from '@/components/custom/CoinInput';
-import { MSG_TYPES, GOVERNANCE_AUTHORITY } from '@/lib/chains/evmd/params';
 import { PROPOSAL_CATEGORIES, type ProposalType, type ParameterSelection, type ProposalMetadata } from '@/lib/governance/types';
+import {
+  buildParameterChangeMessages,
+  buildCommunityPoolSpendMessage,
+  buildSoftwareUpgradeMessage,
+  buildCancelUpgradeMessage,
+  buildIbcClientParamsMessage,
+  buildRegisterPreinstallsMessage,
+  buildRegisterErc20Message,
+  buildToggleConversionMessage,
+  buildProposal,
+  generateCliCommand,
+  exportProposalJson,
+} from '@/lib/governance/proposalBuilder';
+import {
+  generateParameterChangeTitle,
+  generateParameterChangeSummary,
+  generateCommunitySpendTitle,
+  generateCommunitySpendSummary,
+  generateSoftwareUpgradeTitle,
+  generateSoftwareUpgradeSummary,
+  generateIbcClientTitle,
+  generateIbcClientSummary,
+  generatePreinstallTitle,
+  generatePreinstallSummary,
+  generateErc20RegistrationTitle,
+  generateErc20RegistrationSummary,
+  generateToggleConversionTitle,
+  generateToggleConversionSummary,
+} from '@/lib/governance/proposalGenerator';
 import { useChainStore } from '@/store/chain';
-import { FileText, Settings, Upload, Send, Info, Check } from 'lucide-react';
+import { FileText, Settings, Upload, Send, Info, Check, ChevronRight, ChevronLeft } from 'lucide-react';
 
-type ProposalStep = 'type' | 'details' | 'configure' | 'review' | 'submit';
+type ProposalStep = 'type' | 'configure' | 'details' | 'review' | 'submit';
 
 export function ProposalWizard() {
   const { selectedChain } = useChainStore();
@@ -32,6 +65,7 @@ export function ProposalWizard() {
     summary: '',
     deposit: { amount: '0', denom: selectedChain?.coinMinimalDenom || 'uatom' },
     expedited: false,
+    autoVote: false,
   });
 
   // For parameter change proposals
@@ -43,10 +77,21 @@ export function ProposalWizard() {
   // For software upgrade
   const [upgradeData, setUpgradeData] = useState<any>(null);
 
+  // For IBC client params
+  const [ibcClientData, setIbcClientData] = useState<any>(null);
+
+  // For EVM governance
+  const [evmPreinstallsData, setEvmPreinstallsData] = useState<any>(null);
+  const [evmErc20Data, setEvmErc20Data] = useState<any>(null);
+  const [evmToggleConversionData, setEvmToggleConversionData] = useState<any>(null);
+
+  // For custom message
+  const [customMessageData, setCustomMessageData] = useState<any>(null);
+
   const steps: Array<{ id: ProposalStep; label: string; icon: any }> = [
-    { id: 'type', label: 'Proposal Type', icon: Settings },
-    { id: 'details', label: 'Details', icon: FileText },
+    { id: 'type', label: 'Type', icon: Settings },
     { id: 'configure', label: 'Configure', icon: Settings },
+    { id: 'details', label: 'Details', icon: FileText },
     { id: 'review', label: 'Review', icon: Upload },
     { id: 'submit', label: 'Submit', icon: Send },
   ];
@@ -56,6 +101,43 @@ export function ProposalWizard() {
 
   const canProceedFromType = proposalType !== null;
   const canProceedFromDetails = metadata.title && metadata.summary && BigInt(metadata.deposit.amount) > 0;
+
+  // Auto-generate title and summary when moving to details step
+  const autoGenerateMetadata = () => {
+    let title = '';
+    let summary = '';
+
+    if (proposalType?.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE && parameterSelections.length > 0) {
+      title = generateParameterChangeTitle(parameterSelections);
+      summary = generateParameterChangeSummary(parameterSelections);
+    } else if (proposalType?.category === PROPOSAL_CATEGORIES.COMMUNITY_POOL_SPEND && communitySpendData) {
+      title = generateCommunitySpendTitle(communitySpendData.recipient, communitySpendData.amount);
+      summary = generateCommunitySpendSummary(communitySpendData.recipient, communitySpendData.amount);
+    } else if (proposalType?.category === PROPOSAL_CATEGORIES.SOFTWARE_UPGRADE && upgradeData) {
+      title = generateSoftwareUpgradeTitle(upgradeData.name, upgradeData.height);
+      summary = generateSoftwareUpgradeSummary(upgradeData.name, upgradeData.height, upgradeData.info);
+    } else if (proposalType?.category === PROPOSAL_CATEGORIES.IBC_CLIENT && ibcClientData) {
+      title = generateIbcClientTitle(ibcClientData.allowedClients);
+      summary = generateIbcClientSummary(ibcClientData.allowedClients);
+    } else if (proposalType?.id === 'evm_register_preinstalls' && evmPreinstallsData) {
+      title = generatePreinstallTitle(evmPreinstallsData.preinstalls);
+      summary = generatePreinstallSummary(evmPreinstallsData.preinstalls);
+    } else if (proposalType?.id === 'evm_register_erc20' && evmErc20Data) {
+      title = generateErc20RegistrationTitle(evmErc20Data.erc20Addresses);
+      summary = generateErc20RegistrationSummary(evmErc20Data.erc20Addresses);
+    } else if (proposalType?.id === 'evm_toggle_conversion' && evmToggleConversionData) {
+      title = generateToggleConversionTitle(evmToggleConversionData.token);
+      summary = generateToggleConversionSummary(evmToggleConversionData.token);
+    }
+
+    if (title && summary) {
+      setMetadata(prev => ({
+        ...prev,
+        title: prev.title || title,
+        summary: prev.summary || summary,
+      }));
+    }
+  };
   const canProceedFromConfigure = () => {
     if (proposalType?.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE) {
       return parameterSelections.length > 0;
@@ -66,144 +148,318 @@ export function ProposalWizard() {
     if (proposalType?.category === PROPOSAL_CATEGORIES.SOFTWARE_UPGRADE) {
       return upgradeData !== null;
     }
+    if (proposalType?.category === PROPOSAL_CATEGORIES.IBC_CLIENT) {
+      return ibcClientData !== null;
+    }
+    if (proposalType?.category === PROPOSAL_CATEGORIES.EVM_GOVERNANCE) {
+      return evmPreinstallsData !== null || evmErc20Data !== null || evmToggleConversionData !== null;
+    }
     if (proposalType?.category === PROPOSAL_CATEGORIES.TEXT) {
+      return true;
+    }
+    if (proposalType?.category === PROPOSAL_CATEGORIES.CANCEL_UPGRADE) {
       return true;
     }
     return false;
   };
 
-  const buildProposal = () => {
+  const buildProposalMessages = () => {
     if (!proposalType) return null;
 
     let messages: any[] = [];
 
     if (proposalType.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE) {
-      // Group parameters by module
-      const paramsByModule = parameterSelections.reduce((acc, param) => {
-        if (!acc[param.module]) {
-          acc[param.module] = {};
-        }
-        acc[param.module][param.parameter] = param.value;
-        return acc;
-      }, {} as Record<string, any>);
-
-      // Create a message for each module
-      Object.entries(paramsByModule).forEach(([module, params]) => {
-        const msgType =
-          module === 'vm'
-            ? MSG_TYPES.VM_UPDATE_PARAMS
-            : module === 'erc20'
-            ? MSG_TYPES.ERC20_UPDATE_PARAMS
-            : MSG_TYPES.FEEMARKET_UPDATE_PARAMS;
-
-        messages.push({
-          '@type': msgType,
-          authority: GOVERNANCE_AUTHORITY,
-          params,
-        });
-      });
+      messages = buildParameterChangeMessages(parameterSelections);
     } else if (proposalType.category === PROPOSAL_CATEGORIES.COMMUNITY_POOL_SPEND) {
-      messages.push({
-        '@type': '/cosmos.distribution.v1beta1.MsgCommunityPoolSpend',
-        authority: GOVERNANCE_AUTHORITY,
-        recipient: communitySpendData.recipient,
-        amount: communitySpendData.amount,
-      });
+      messages.push(buildCommunityPoolSpendMessage(communitySpendData.recipient, communitySpendData.amount));
     } else if (proposalType.category === PROPOSAL_CATEGORIES.SOFTWARE_UPGRADE) {
-      messages.push({
-        '@type': '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade',
-        authority: GOVERNANCE_AUTHORITY,
-        plan: {
-          name: upgradeData.name,
-          height: upgradeData.height,
-          info: upgradeData.info,
-        },
-      });
+      messages.push(buildSoftwareUpgradeMessage(upgradeData.name, upgradeData.height, upgradeData.info));
     } else if (proposalType.category === PROPOSAL_CATEGORIES.CANCEL_UPGRADE) {
-      messages.push({
-        '@type': '/cosmos.upgrade.v1beta1.MsgCancelUpgrade',
-        authority: GOVERNANCE_AUTHORITY,
-      });
+      messages.push(buildCancelUpgradeMessage());
+    } else if (proposalType.category === PROPOSAL_CATEGORIES.IBC_CLIENT) {
+      messages.push(buildIbcClientParamsMessage(ibcClientData.allowedClients));
+    } else if (proposalType.category === PROPOSAL_CATEGORIES.EVM_GOVERNANCE) {
+      if (proposalType.id === 'evm_register_preinstalls') {
+        messages.push(buildRegisterPreinstallsMessage(evmPreinstallsData.preinstalls));
+      } else if (proposalType.id === 'evm_register_erc20') {
+        messages.push(buildRegisterErc20Message(evmErc20Data.erc20Addresses));
+      } else if (proposalType.id === 'evm_toggle_conversion') {
+        messages.push(buildToggleConversionMessage(evmToggleConversionData.token));
+      }
     }
 
-    return {
-      messages,
-      metadata: '',
-      deposit: [metadata.deposit],
-      title: metadata.title,
-      summary: metadata.summary,
-      expedited: metadata.expedited,
-    };
+    return buildProposal(messages, metadata.title, metadata.summary, metadata.deposit, metadata.expedited);
   };
 
-  const buildCliCommand = () => {
-    const proposal = buildProposal();
-    if (!proposal) return '';
+  const downloadProposalJson = () => {
+    const proposal = buildProposalMessages();
+    if (!proposal) return;
 
-    return `evmd tx gov submit-proposal proposal.json \\
-  --from=<your-key> \\
-  --chain-id=${selectedChain?.chainId || 'evmos_9001-2'} \\
-  --gas=auto \\
-  --gas-adjustment=1.5 \\
-  --fees=<fee>`;
+    const json = exportProposalJson(proposal);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `proposal-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Progress */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Create Governance Proposal</CardTitle>
-              {proposalType && (
-                <CardDescription className="mt-1">
-                  {proposalType.name}
-                </CardDescription>
-              )}
-            </div>
-            <Badge variant="outline">Step {currentStepIndex + 1} of {steps.length}</Badge>
-          </div>
-          <Progress value={progress} className="mt-2" />
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-between">
-            {steps.map((s, index) => {
-              const Icon = s.icon;
-              const isActive = step === s.id;
-              const isCompleted = index < currentStepIndex;
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Compact Progress Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Create Governance Proposal</h1>
+          {proposalType && (
+            <p className="text-sm text-muted-foreground mt-1">{proposalType.name}</p>
+          )}
+        </div>
+        <Badge variant="outline" className="text-sm">
+          Step {currentStepIndex + 1} of {steps.length}
+        </Badge>
+      </div>
 
-              return (
-                <div
-                  key={s.id}
-                  className={`flex items-center gap-2 ${
-                    isActive ? 'text-primary' : isCompleted ? 'text-green-600' : 'text-muted-foreground'
-                  }`}
-                >
-                  {isCompleted ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
-                  <span className="text-sm font-medium hidden sm:inline">{s.label}</span>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+      <Progress value={progress} className="h-2" />
 
       {/* Step: Proposal Type */}
       {step === 'type' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Choose Proposal Type</CardTitle>
+            <CardDescription>
+              Select the type of governance action you want to propose
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ProposalTypeDropdown
+              selectedType={proposalType || undefined}
+              onSelect={(type) => setProposalType(type)}
+            />
+
+            <div className="flex justify-end pt-2">
+              <Button
+                onClick={() => setStep('configure')}
+                disabled={!canProceedFromType}
+                size="lg"
+                className="min-w-[200px]"
+              >
+                Continue
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Step: Configure */}
+      {step === 'configure' && (
         <div className="space-y-4">
-          <ProposalTypeSelector
-            selectedType={proposalType || undefined}
-            onSelect={(type) => setProposalType(type)}
-          />
-          <Button
-            onClick={() => setStep('details')}
-            disabled={!canProceedFromType}
-            size="lg"
-            className="w-full"
-          >
-            Next: Proposal Details
-          </Button>
+          {proposalType?.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE && (
+            <>
+              <ParameterSelector
+                onSelectionChange={setParameterSelections}
+                initialSelections={parameterSelections}
+              />
+              <div className="flex justify-between gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep('type')}
+                  size="lg"
+                >
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+                <Button
+                  onClick={() => {
+                    autoGenerateMetadata();
+                    setStep('details');
+                  }}
+                  disabled={!canProceedFromConfigure()}
+                  size="lg"
+                  className="min-w-[200px]"
+                >
+                  Continue to Details
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </>
+          )}
+
+          {proposalType?.category === PROPOSAL_CATEGORIES.TEXT && (
+            <>
+              <TextProposalForm onComplete={() => setStep('details')} />
+              <div className="flex justify-between gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep('type')}
+                  size="lg"
+                >
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+                <Button
+                  onClick={() => {
+                    autoGenerateMetadata();
+                    setStep('details');
+                  }}
+                  size="lg"
+                  className="min-w-[200px]"
+                >
+                  Continue to Details
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </>
+          )}
+
+          {proposalType?.category === PROPOSAL_CATEGORIES.COMMUNITY_POOL_SPEND && (
+            <CommunityPoolSpendForm
+              onSubmit={(data) => {
+                setCommunitySpendData(data);
+                // Generate after state is set
+                setTimeout(() => {
+                  const title = generateCommunitySpendTitle(data.recipient, data.amount);
+                  const summary = generateCommunitySpendSummary(data.recipient, data.amount);
+                  setMetadata(prev => ({
+                    ...prev,
+                    title: prev.title || title,
+                    summary: prev.summary || summary,
+                  }));
+                }, 0);
+                setStep('details');
+              }}
+            />
+          )}
+
+          {proposalType?.category === PROPOSAL_CATEGORIES.SOFTWARE_UPGRADE && (
+            <SoftwareUpgradeForm
+              onSubmit={(data) => {
+                setUpgradeData(data);
+                // Generate after state is set
+                setTimeout(() => {
+                  const title = generateSoftwareUpgradeTitle(data.name, data.height);
+                  const summary = generateSoftwareUpgradeSummary(data.name, data.height, data.info);
+                  setMetadata(prev => ({
+                    ...prev,
+                    title: prev.title || title,
+                    summary: prev.summary || summary,
+                  }));
+                }, 0);
+                setStep('details');
+              }}
+            />
+          )}
+
+          {proposalType?.category === PROPOSAL_CATEGORIES.CANCEL_UPGRADE && (
+            <>
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  This proposal will cancel any pending software upgrade. No additional configuration is required.
+                </AlertDescription>
+              </Alert>
+              <div className="flex justify-between gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep('type')}
+                  size="lg"
+                >
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+                <Button
+                  onClick={() => {
+                    autoGenerateMetadata();
+                    setStep('details');
+                  }}
+                  size="lg"
+                  className="min-w-[200px]"
+                >
+                  Continue to Details
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </>
+          )}
+
+          {proposalType?.category === PROPOSAL_CATEGORIES.IBC_CLIENT && (
+            <IbcClientParamsForm
+              onSubmit={(data) => {
+                setIbcClientData(data);
+                setTimeout(() => {
+                  const title = generateIbcClientTitle(data.allowedClients);
+                  const summary = generateIbcClientSummary(data.allowedClients);
+                  setMetadata(prev => ({
+                    ...prev,
+                    title: prev.title || title,
+                    summary: prev.summary || summary,
+                  }));
+                }, 0);
+                setStep('details');
+              }}
+              onBack={() => setStep('type')}
+            />
+          )}
+
+          {proposalType?.id === 'evm_register_preinstalls' && (
+            <EvmRegisterPreinstallsForm
+              onSubmit={(data) => {
+                setEvmPreinstallsData(data);
+                setTimeout(() => {
+                  const title = generatePreinstallTitle(data.preinstalls);
+                  const summary = generatePreinstallSummary(data.preinstalls);
+                  setMetadata(prev => ({
+                    ...prev,
+                    title: prev.title || title,
+                    summary: prev.summary || summary,
+                  }));
+                }, 0);
+                setStep('details');
+              }}
+              onBack={() => setStep('type')}
+            />
+          )}
+
+          {proposalType?.id === 'evm_register_erc20' && (
+            <EvmRegisterErc20Form
+              onSubmit={(data) => {
+                setEvmErc20Data(data);
+                setTimeout(() => {
+                  const title = generateErc20RegistrationTitle(data.erc20Addresses);
+                  const summary = generateErc20RegistrationSummary(data.erc20Addresses);
+                  setMetadata(prev => ({
+                    ...prev,
+                    title: prev.title || title,
+                    summary: prev.summary || summary,
+                  }));
+                }, 0);
+                setStep('details');
+              }}
+              onBack={() => setStep('type')}
+            />
+          )}
+
+          {proposalType?.id === 'evm_toggle_conversion' && (
+            <EvmToggleConversionForm
+              onSubmit={(data) => {
+                setEvmToggleConversionData(data);
+                setTimeout(() => {
+                  const title = generateToggleConversionTitle(data.token);
+                  const summary = generateToggleConversionSummary(data.token);
+                  setMetadata(prev => ({
+                    ...prev,
+                    title: prev.title || title,
+                    summary: prev.summary || summary,
+                  }));
+                }, 0);
+                setStep('details');
+              }}
+              onBack={() => setStep('type')}
+            />
+          )}
         </div>
       )}
 
@@ -213,10 +469,22 @@ export function ProposalWizard() {
           <CardHeader>
             <CardTitle>Proposal Details</CardTitle>
             <CardDescription>
-              Basic information about your governance proposal
+              Review and edit the auto-generated proposal information
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            {(proposalType?.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE ||
+              proposalType?.category === PROPOSAL_CATEGORIES.COMMUNITY_POOL_SPEND ||
+              proposalType?.category === PROPOSAL_CATEGORIES.SOFTWARE_UPGRADE ||
+              proposalType?.category === PROPOSAL_CATEGORIES.IBC_CLIENT ||
+              proposalType?.category === PROPOSAL_CATEGORIES.EVM_GOVERNANCE) && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  The title and summary have been auto-generated based on your configuration. You can edit them as needed before submitting.
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2">
               <Label htmlFor="title">Title *</Label>
               <Input
@@ -236,244 +504,173 @@ export function ProposalWizard() {
                 value={metadata.summary}
                 onChange={(e) => setMetadata({ ...metadata, summary: e.target.value })}
                 placeholder="Provide a detailed summary of your proposal and its rationale..."
-                rows={6}
+                rows={5}
+                className="resize-none"
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <CoinInput
                 label="Initial Deposit *"
                 value={metadata.deposit}
                 onChange={(deposit) => setMetadata({ ...metadata, deposit })}
                 required
               />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {proposalType?.allowsExpedited && (
+                  <div className="flex items-center justify-between rounded-lg border p-3">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="expedited" className="text-sm font-medium">
+                        Expedited
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Shorter voting period
+                      </p>
+                    </div>
+                    <Switch
+                      id="expedited"
+                      checked={metadata.expedited}
+                      onCheckedChange={(checked) => setMetadata({ ...metadata, expedited: checked })}
+                    />
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between rounded-lg border p-3 border-primary/40 bg-primary/5">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="autoVote" className="text-sm font-medium">
+                      Auto-Vote Yes
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Automatically vote "Yes" after submission
+                    </p>
+                  </div>
+                  <Switch
+                    id="autoVote"
+                    checked={metadata.autoVote}
+                    onCheckedChange={(checked) => setMetadata({ ...metadata, autoVote: checked })}
+                  />
+                </div>
+              </div>
             </div>
 
-            {proposalType?.allowsExpedited && (
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <Label htmlFor="expedited" className="text-base">
-                    Expedited Proposal
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Expedited proposals have a shorter voting period but require a higher deposit
-                  </p>
-                </div>
-                <Switch
-                  id="expedited"
-                  checked={metadata.expedited}
-                  onCheckedChange={(checked) => setMetadata({ ...metadata, expedited: checked })}
-                />
-              </div>
-            )}
-
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertDescription>
-                The initial deposit must meet the minimum deposit requirement. Additional deposits can be made after submission.
-              </AlertDescription>
-            </Alert>
-
-            <Separator />
-
-            <div className="flex gap-2">
+            <div className="flex justify-between gap-3 pt-2">
               <Button
                 variant="outline"
-                onClick={() => setStep('type')}
-                className="flex-1"
+                onClick={() => setStep('configure')}
+                size="lg"
               >
-                Back: Proposal Type
+                <ChevronLeft className="mr-2 h-4 w-4" />
+                Back
               </Button>
               <Button
-                onClick={() => setStep('configure')}
+                onClick={() => setStep('review')}
                 disabled={!canProceedFromDetails}
-                className="flex-1"
+                size="lg"
+                className="min-w-[200px]"
               >
-                Next: {proposalType?.category === PROPOSAL_CATEGORIES.TEXT ? 'Review' : 'Configure'}
+                Review Proposal
+                <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Step: Configure */}
-      {step === 'configure' && (
-        <div className="space-y-4">
-          {proposalType?.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE && (
-            <>
-              <ParameterSelector
-                onSelectionChange={setParameterSelections}
-                initialSelections={parameterSelections}
-              />
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setStep('details')}
-                  className="flex-1"
-                >
-                  Back: Details
-                </Button>
-                <Button
-                  onClick={() => setStep('review')}
-                  disabled={!canProceedFromConfigure()}
-                  className="flex-1"
-                >
-                  Next: Review
-                </Button>
-              </div>
-            </>
-          )}
-
-          {proposalType?.category === PROPOSAL_CATEGORIES.TEXT && (
-            <>
-              <TextProposalForm onComplete={() => setStep('review')} />
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setStep('details')}
-                  className="flex-1"
-                >
-                  Back: Details
-                </Button>
-                <Button
-                  onClick={() => setStep('review')}
-                  className="flex-1"
-                >
-                  Next: Review
-                </Button>
-              </div>
-            </>
-          )}
-
-          {proposalType?.category === PROPOSAL_CATEGORIES.COMMUNITY_POOL_SPEND && (
-            <CommunityPoolSpendForm
-              onSubmit={(data) => {
-                setCommunitySpendData(data);
-                setStep('review');
-              }}
-            />
-          )}
-
-          {proposalType?.category === PROPOSAL_CATEGORIES.SOFTWARE_UPGRADE && (
-            <SoftwareUpgradeForm
-              onSubmit={(data) => {
-                setUpgradeData(data);
-                setStep('review');
-              }}
-            />
-          )}
-
-          {proposalType?.category === PROPOSAL_CATEGORIES.CANCEL_UPGRADE && (
-            <>
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  This proposal will cancel any pending software upgrade. No additional configuration is required.
-                </AlertDescription>
-              </Alert>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setStep('details')}
-                  className="flex-1"
-                >
-                  Back: Details
-                </Button>
-                <Button
-                  onClick={() => setStep('review')}
-                  className="flex-1"
-                >
-                  Next: Review
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
 
       {/* Step: Review */}
       {step === 'review' && (
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Review Proposal</CardTitle>
+              <CardTitle>Review & Submit</CardTitle>
               <CardDescription>
-                Verify all details before submitting
+                Verify your proposal details before submitting to the chain
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4">
-                <div className="space-y-2">
-                  <Label>Proposal Type</Label>
-                  <div className="flex items-center gap-2">
-                    <Badge>{proposalType?.name}</Badge>
-                    {metadata.expedited && (
-                      <Badge variant="secondary">Expedited</Badge>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Title</Label>
-                  <p className="text-sm font-medium">{metadata.title}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Summary</Label>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{metadata.summary}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Initial Deposit</Label>
-                  <p className="text-sm font-mono">
-                    {metadata.deposit.amount} {metadata.deposit.denom}
-                  </p>
-                </div>
-
-                {proposalType?.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE && parameterSelections.length > 0 && (
-                  <div className="space-y-2">
-                    <Label>Parameter Changes</Label>
-                    <div className="space-y-2">
-                      {parameterSelections.map((param, idx) => (
-                        <div key={idx} className="rounded-lg border p-3 text-sm">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="space-y-1">
-                              <p className="font-medium">
-                                {param.module.toUpperCase()} → {param.parameter}
-                              </p>
-                              <p className="text-xs text-muted-foreground">{param.description}</p>
-                            </div>
-                            <Badge variant="outline" className="text-xs">
-                              {typeof param.value}
-                            </Badge>
-                          </div>
-                          <div className="mt-2 p-2 bg-muted/50 rounded font-mono text-xs">
-                            {JSON.stringify(param.value)}
-                          </div>
-                        </div>
-                      ))}
+            <CardContent className="space-y-6">
+              {/* Summary Section */}
+              <div className="rounded-lg border p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{proposalType?.name}</Badge>
+                      {metadata.expedited && (
+                        <Badge variant="secondary" className="text-xs">Expedited</Badge>
+                      )}
                     </div>
+                    <h3 className="font-semibold text-lg">{metadata.title}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-3">{metadata.summary}</p>
                   </div>
-                )}
+                </div>
+
+                <div className="flex items-center gap-4 pt-2 border-t text-sm flex-wrap">
+                  <div>
+                    <span className="text-muted-foreground">Deposit:</span>{' '}
+                    <span className="font-mono font-medium">
+                      {metadata.deposit.amount} {metadata.deposit.denom}
+                    </span>
+                  </div>
+                  {proposalType?.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE && (
+                    <div>
+                      <span className="text-muted-foreground">Parameters:</span>{' '}
+                      <span className="font-medium">{parameterSelections.length}</span>
+                    </div>
+                  )}
+                  {metadata.autoVote && (
+                    <div className="flex items-center gap-1">
+                      <Check className="h-3 w-3 text-green-600" />
+                      <span className="text-green-600 font-medium">Auto-Vote Enabled</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <Separator />
+              {/* Parameter Changes Preview (if applicable) */}
+              {proposalType?.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE && parameterSelections.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm">Parameter Changes ({parameterSelections.length})</Label>
+                  <div className="max-h-[200px] overflow-y-auto space-y-2 rounded-lg border p-3">
+                    {parameterSelections.map((param, idx) => (
+                      <div key={idx} className="text-sm flex items-center justify-between gap-2 py-1">
+                        <span className="font-medium">
+                          {param.module.toUpperCase()} → {param.parameter}
+                        </span>
+                        <span className="font-mono text-xs text-muted-foreground truncate max-w-[200px]">
+                          {JSON.stringify(param.value)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
+              {/* JSON Preview - Collapsible */}
               <ProposalJsonPreview
-                proposal={buildProposal()}
-                cliCommand={buildCliCommand()}
-                title="Proposal Preview"
-                description={proposalType?.description || ''}
+                proposal={buildProposalMessages()}
+                cliCommand={generateCliCommand(buildProposalMessages()!, selectedChain?.chainId || 'evmos_9001-2')}
+                title="Proposal JSON"
+                description="Technical details for CLI submission"
               />
             </CardContent>
           </Card>
 
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setStep('configure')} className="flex-1">
-              Back: Edit Configuration
+          <div className="flex justify-between gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setStep('configure')}
+              size="lg"
+            >
+              <ChevronLeft className="mr-2 h-4 w-4" />
+              Edit
             </Button>
-            <Button onClick={() => setStep('submit')} className="flex-1">
-              Next: Submit Proposal
+            <Button
+              onClick={() => setStep('submit')}
+              size="lg"
+              className="min-w-[200px]"
+            >
+              Submit Proposal
+              <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -496,21 +693,42 @@ export function ProposalWizard() {
               </AlertDescription>
             </Alert>
 
-            <div className="grid gap-2">
-              <Button size="lg" className="w-full">
-                <Send className="h-4 w-4 mr-2" />
-                Sign & Submit Proposal
+            {metadata.autoVote && (
+              <Alert className="border-primary/40 bg-primary/5">
+                <Check className="h-4 w-4 text-primary" />
+                <AlertDescription>
+                  <strong>Auto-Vote Enabled:</strong> After the proposal is submitted successfully, your connected wallet will automatically vote "Yes" on this proposal.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <div className="space-y-3">
+              <Button size="lg" className="w-full h-14 text-base font-semibold">
+                <Send className="h-5 w-5 mr-2" />
+                {metadata.autoVote ? 'Submit Proposal & Vote Yes' : 'Sign & Submit Proposal'}
               </Button>
 
-              <Button variant="outline" size="lg" className="w-full">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full h-12"
+                onClick={downloadProposalJson}
+              >
+                <Upload className="h-4 w-4 mr-2" />
                 Download Proposal JSON
               </Button>
             </div>
 
             <Separator />
 
-            <Button variant="ghost" onClick={() => setStep('review')} className="w-full">
-              Back: Review
+            <Button
+              variant="ghost"
+              onClick={() => setStep('review')}
+              size="lg"
+              className="w-full"
+            >
+              <ChevronLeft className="mr-2 h-4 w-4" />
+              Back to Review
             </Button>
           </CardContent>
         </Card>

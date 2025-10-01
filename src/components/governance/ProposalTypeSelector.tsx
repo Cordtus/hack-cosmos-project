@@ -12,7 +12,10 @@ import {
   FileText,
   Wallet,
   ArrowUpCircle,
-  XCircle
+  XCircle,
+  Network,
+  Code,
+  MessageSquare
 } from 'lucide-react';
 
 interface ProposalTypeSelectorProps {
@@ -26,6 +29,9 @@ const categoryIcons: Record<ProposalCategory, any> = {
   [PROPOSAL_CATEGORIES.COMMUNITY_POOL_SPEND]: Wallet,
   [PROPOSAL_CATEGORIES.SOFTWARE_UPGRADE]: ArrowUpCircle,
   [PROPOSAL_CATEGORIES.CANCEL_UPGRADE]: XCircle,
+  [PROPOSAL_CATEGORIES.IBC_CLIENT]: Network,
+  [PROPOSAL_CATEGORIES.EVM_GOVERNANCE]: Code,
+  [PROPOSAL_CATEGORIES.CUSTOM_MESSAGE]: MessageSquare,
 };
 
 const categoryDescriptions: Record<ProposalCategory, string> = {
@@ -34,6 +40,9 @@ const categoryDescriptions: Record<ProposalCategory, string> = {
   [PROPOSAL_CATEGORIES.COMMUNITY_POOL_SPEND]: 'Distribute funds from the community treasury',
   [PROPOSAL_CATEGORIES.SOFTWARE_UPGRADE]: 'Schedule coordinated chain upgrades',
   [PROPOSAL_CATEGORIES.CANCEL_UPGRADE]: 'Cancel pending software upgrades',
+  [PROPOSAL_CATEGORIES.IBC_CLIENT]: 'Manage IBC client configuration and allowed types',
+  [PROPOSAL_CATEGORIES.EVM_GOVERNANCE]: 'EVM-specific governance operations for contracts and tokens',
+  [PROPOSAL_CATEGORIES.CUSTOM_MESSAGE]: 'Advanced: Submit custom governance messages',
 };
 
 export function ProposalTypeSelector({ onSelect, selectedType }: ProposalTypeSelectorProps) {
@@ -57,7 +66,7 @@ export function ProposalTypeSelector({ onSelect, selectedType }: ProposalTypeSel
       </CardHeader>
       <CardContent>
         <Tabs defaultValue={PROPOSAL_CATEGORIES.PARAMETER_CHANGE} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 mb-6">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-6">
             {categories.map((category) => {
               const Icon = categoryIcons[category];
               return (

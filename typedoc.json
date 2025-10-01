@@ -1,0 +1,10 @@
+{
+  "entryPoints": ["src/lib/governance"],
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "name": "Chain Orchestrator - Governance Module Documentation",
+  "exclude": ["**/node_modules/**", "**/dist/**"],
+  "excludeExternals": true,
+  "includeVersion": true,
+  "readme": "none"
+}

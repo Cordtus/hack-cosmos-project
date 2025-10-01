@@ -192,66 +192,72 @@ export function ParameterSelector({ onSelectionChange, initialSelections = [] }:
     const selectedCount = params.filter(([key]) => isParamSelected(module, key)).length;
 
     return (
-      <AccordionItem value={module} key={module}>
-        <AccordionTrigger className="hover:no-underline">
+      <AccordionItem value={module} key={module} className="border rounded-lg px-4 bg-card">
+        <AccordionTrigger className="hover:no-underline py-4">
           <div className="flex items-center justify-between w-full pr-4">
             <div className="flex items-center gap-3">
-              <Settings className="h-5 w-5 text-muted-foreground" />
+              <div className="h-10 w-1 bg-primary rounded-full" />
+              <Settings className="h-5 w-5 text-primary" />
               <div className="text-left">
-                <div className="font-semibold">{config.name}</div>
+                <div className="font-semibold text-base">{config.name}</div>
                 <div className="text-sm text-muted-foreground">{config.description}</div>
               </div>
             </div>
             {selectedCount > 0 && (
-              <Badge variant="secondary">
+              <Badge variant="default" className="ml-2">
                 {selectedCount} selected
               </Badge>
             )}
           </div>
         </AccordionTrigger>
-        <AccordionContent className="space-y-4 pt-4">
+        <AccordionContent className="space-y-3 pt-2 pb-4">
           {params.map(([paramKey, paramConfig]) => {
             const isSelected = isParamSelected(module, paramKey);
 
             return (
               <div
                 key={paramKey}
-                className={`rounded-lg border p-4 space-y-3 transition-colors ${
-                  isSelected ? 'border-primary bg-primary/5' : 'border-border'
+                className={`relative rounded-lg border-2 p-4 space-y-3 transition-all ${
+                  isSelected
+                    ? 'border-primary bg-primary/5 shadow-sm'
+                    : 'border-border hover:border-primary/30'
                 }`}
               >
+                {isSelected && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg" />
+                )}
                 <div className="flex items-start gap-3">
                   <Checkbox
                     id={`${module}.${paramKey}`}
                     checked={isSelected}
                     onCheckedChange={() => toggleParam(module, paramKey)}
-                    className="mt-1"
+                    className="mt-1 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                   />
                   <div className="flex-1 space-y-2">
                     <div className="flex items-start justify-between gap-4">
                       <Label
                         htmlFor={`${module}.${paramKey}`}
-                        className="font-medium cursor-pointer"
+                        className="font-semibold cursor-pointer text-base"
                       >
                         {paramKey.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                       </Label>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-xs font-mono">
                         {paramConfig.type}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       {paramConfig.description}
                     </p>
                     {isSelected && (
                       <>
-                        <Separator className="my-3" />
-                        <div className="space-y-2">
-                          <Label className="text-xs text-muted-foreground">New Value</Label>
+                        <div className="h-px bg-gradient-to-r from-primary/50 via-primary/20 to-transparent my-3" />
+                        <div className="space-y-2 bg-muted/30 rounded-lg p-3 border border-primary/20">
+                          <Label className="text-xs font-semibold text-primary">New Value</Label>
                           {renderParameterInput(module, paramKey, paramConfig)}
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Info className="h-3 w-3" />
-                          <span>Default: {JSON.stringify(paramConfig.default)}</span>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded p-2">
+                          <Info className="h-3 w-3 flex-shrink-0" />
+                          <span>Default: <code className="font-mono">{JSON.stringify(paramConfig.default)}</code></span>
                         </div>
                       </>
                     )}
@@ -295,7 +301,7 @@ export function ParameterSelector({ onSelectionChange, initialSelections = [] }:
           </Alert>
         )}
 
-        <Accordion type="multiple" className="w-full">
+        <Accordion type="multiple" className="w-full space-y-4">
           {renderModule('vm')}
           {renderModule('erc20')}
           {renderModule('feemarket')}

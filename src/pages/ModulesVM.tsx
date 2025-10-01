@@ -2,8 +2,11 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Info, Database, Send, Code } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Info, Database, Send, Code, Play, Zap, Settings } from 'lucide-react';
 import MethodCard from '@/components/modules/MethodCard';
+import QueryInterface from '@/components/modules/QueryInterface';
+import TransactionInterface from '@/components/modules/TransactionInterface';
 
 export function ModulesVM() {
   // Query methods from generated proto files
@@ -126,71 +129,165 @@ export function ModulesVM() {
     }
   ];
 
+  // Query interfaces with field definitions
+  const queryInterfaces = [
+    {
+      name: 'Account',
+      description: 'Query an Ethereum account by address',
+      fields: [
+        {
+          name: 'address',
+          type: 'address' as const,
+          required: true,
+          placeholder: '0x...',
+          description: 'Ethereum account address'
+        }
+      ],
+      mockResponse: {
+        balance: '1000000000000000000',
+        codeHash: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
+        nonce: 5
+      }
+    },
+    {
+      name: 'Balance',
+      description: 'Query balance of an Ethereum account',
+      fields: [
+        {
+          name: 'address',
+          type: 'address' as const,
+          required: true,
+          placeholder: '0x...',
+          description: 'Ethereum account address'
+        }
+      ],
+      mockResponse: {
+        balance: '1000000000000000000'
+      }
+    },
+    {
+      name: 'Storage',
+      description: 'Query contract storage at a specific key',
+      fields: [
+        {
+          name: 'address',
+          type: 'address' as const,
+          required: true,
+          placeholder: '0x...',
+          description: 'Contract address'
+        },
+        {
+          name: 'key',
+          type: 'string' as const,
+          required: true,
+          placeholder: '0x0',
+          description: 'Storage key'
+        }
+      ],
+      mockResponse: {
+        value: '0x0000000000000000000000000000000000000000000000000000000000000001'
+      }
+    }
+  ];
+
+  // Transaction interfaces
+  const transactionInterfaces = [
+    {
+      name: 'EthereumTx',
+      description: 'Submit an Ethereum transaction',
+      fields: [
+        {
+          name: 'data',
+          type: 'string' as const,
+          required: true,
+          placeholder: '0x...',
+          description: 'Transaction data (encoded)'
+        },
+        {
+          name: 'size',
+          type: 'number' as const,
+          placeholder: '0',
+          description: 'Transaction size'
+        },
+        {
+          name: 'hash',
+          type: 'string' as const,
+          placeholder: '0x...',
+          description: 'Transaction hash'
+        }
+      ]
+    },
+    {
+      name: 'UpdateParams',
+      description: 'Update VM module parameters',
+      governanceOnly: true,
+      fields: [
+        {
+          name: 'evmDenom',
+          type: 'string' as const,
+          placeholder: 'aevmos',
+          description: 'EVM denomination'
+        },
+        {
+          name: 'enableCreate',
+          type: 'boolean' as const,
+          description: 'Allow contract creation'
+        },
+        {
+          name: 'enableCall',
+          type: 'boolean' as const,
+          description: 'Allow contract calls'
+        }
+      ]
+    }
+  ];
+
   return (
-    <div className="container mx-auto p-6 max-w-7xl space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">VM (EVM) Module</h1>
-        <p className="text-muted-foreground mt-2">
-          Ethereum Virtual Machine implementation for Cosmos SDK chains
-        </p>
+    <div className="container mx-auto p-4 max-w-7xl space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">VM (EVM) Module</h1>
+          <p className="text-muted-foreground text-sm">
+            Ethereum Virtual Machine for smart contracts
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Badge className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
+            EVM Core
+          </Badge>
+          <Badge className="bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400">
+            14 Queries
+          </Badge>
+          <Badge className="bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/30 dark:text-fuchsia-400">
+            2 Transactions
+          </Badge>
+        </div>
       </div>
 
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          The VM module provides a full Ethereum Virtual Machine implementation, enabling smart contract execution,
-          account management, and Ethereum-compatible transactions on Cosmos chains.
-        </AlertDescription>
-      </Alert>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Module Overview</CardTitle>
-          <CardDescription>
-            Key capabilities and features of the VM module
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <h3 className="font-semibold text-sm">Core Features</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• EVM bytecode execution</li>
-                <li>• Ethereum account model</li>
-                <li>• Smart contract deployment</li>
-                <li>• Gas metering and fees</li>
-                <li>• State transitions and storage</li>
-                <li>• Transaction tracing and debugging</li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold text-sm">Ethereum Compatibility</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• EIP-1559 (Dynamic base fee)</li>
-                <li>• EIP-2929 (Gas cost increases)</li>
-                <li>• EIP-2930 (Access lists)</li>
-                <li>• Solidity & Vyper support</li>
-                <li>• Web3 JSON-RPC API</li>
-                <li>• MetaMask integration</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       <Tabs defaultValue="queries" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="queries" className="flex items-center gap-2">
+        <TabsList className="grid grid-cols-6 w-full bg-muted/50">
+          <TabsTrigger value="queries" className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/30 dark:data-[state=active]:text-blue-400">
             <Database className="w-4 h-4" />
-            Query Methods
+            Queries
           </TabsTrigger>
-          <TabsTrigger value="transactions" className="flex items-center gap-2">
+          <TabsTrigger value="transactions" className="flex items-center gap-2 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 dark:data-[state=active]:bg-purple-900/30 dark:data-[state=active]:text-purple-400">
             <Send className="w-4 h-4" />
-            Transaction Methods
+            Transactions
           </TabsTrigger>
-          <TabsTrigger value="params">Parameters</TabsTrigger>
-          <TabsTrigger value="precompiles">
-            <Code className="w-4 h-4 mr-2" />
+          <TabsTrigger value="query-interface" className="flex items-center gap-2 data-[state=active]:bg-cyan-100 data-[state=active]:text-cyan-700 dark:data-[state=active]:bg-cyan-900/30 dark:data-[state=active]:text-cyan-400">
+            <Play className="w-4 h-4" />
+            Test
+          </TabsTrigger>
+          <TabsTrigger value="tx-interface" className="flex items-center gap-2 data-[state=active]:bg-violet-100 data-[state=active]:text-violet-700 dark:data-[state=active]:bg-violet-900/30 dark:data-[state=active]:text-violet-400">
+            <Zap className="w-4 h-4" />
+            Execute
+          </TabsTrigger>
+          <TabsTrigger value="params" className="data-[state=active]:bg-amber-100 data-[state=active]:text-amber-700 dark:data-[state=active]:bg-amber-900/30 dark:data-[state=active]:text-amber-400">
+            <Settings className="w-4 h-4" />
+            Params
+          </TabsTrigger>
+          <TabsTrigger value="precompiles" className="data-[state=active]:bg-rose-100 data-[state=active]:text-rose-700 dark:data-[state=active]:bg-rose-900/30 dark:data-[state=active]:text-rose-400">
+            <Code className="w-4 h-4" />
             Precompiles
           </TabsTrigger>
         </TabsList>
@@ -207,6 +304,34 @@ export function ModulesVM() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {transactionMethods.map((method) => (
               <MethodCard key={method.name} method={method} />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="query-interface" className="space-y-4">
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Test VM module queries directly. Responses follow proto definitions.
+            </AlertDescription>
+          </Alert>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {queryInterfaces.map((query) => (
+              <QueryInterface key={query.name} method={query} module="vm" />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="tx-interface" className="space-y-4">
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Execute VM transactions. Connect wallet to broadcast.
+            </AlertDescription>
+          </Alert>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {transactionInterfaces.map((tx) => (
+              <TransactionInterface key={tx.name} method={tx} module="vm" />
             ))}
           </div>
         </TabsContent>

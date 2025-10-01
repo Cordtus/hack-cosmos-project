@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Info, Database, Send, Play, Zap } from 'lucide-react';
 import MethodCard from '@/components/modules/MethodCard';
 import QueryInterface from '@/components/modules/QueryInterface';
@@ -268,73 +269,51 @@ export function ModulesERC20() {
   ];
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">ERC20 Module</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage token pairs and conversions between native Cosmos coins and ERC20 tokens
-        </p>
+    <div className="container mx-auto p-4 max-w-7xl space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">ERC20 Module</h1>
+          <p className="text-muted-foreground text-sm">
+            Token conversions between Cosmos and ERC20
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+            Bridge Module
+          </Badge>
+          <Badge className="bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400">
+            3 Queries
+          </Badge>
+          <Badge className="bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400">
+            6 Transactions
+          </Badge>
+        </div>
       </div>
 
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          The ERC20 module enables seamless interoperability between Cosmos native coins and ERC20 tokens on the EVM.
-          It maintains a registry of token pairs and handles bidirectional conversions.
-        </AlertDescription>
-      </Alert>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Module Overview</CardTitle>
-          <CardDescription>
-            Key capabilities and features of the ERC20 module
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <h3 className="font-semibold text-sm">Core Features</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Token pair registration and management</li>
-                <li>• Bidirectional token conversion</li>
-                <li>• Automatic contract deployment</li>
-                <li>• Conversion toggle controls</li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold text-sm">Use Cases</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Bridge native tokens to EVM ecosystem</li>
-                <li>• Enable DeFi composability</li>
-                <li>• Cross-chain asset transfers</li>
-                <li>• Token standardization</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       <Tabs defaultValue="queries" className="space-y-4">
-        <TabsList className="grid grid-cols-6 w-full">
-          <TabsTrigger value="queries" className="flex items-center gap-2">
+        <TabsList className="grid grid-cols-6 w-full bg-muted/50">
+          <TabsTrigger value="queries" className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900/30 dark:data-[state=active]:text-blue-400">
             <Database className="w-4 h-4" />
             Queries
           </TabsTrigger>
-          <TabsTrigger value="transactions" className="flex items-center gap-2">
+          <TabsTrigger value="transactions" className="flex items-center gap-2 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 dark:data-[state=active]:bg-purple-900/30 dark:data-[state=active]:text-purple-400">
             <Send className="w-4 h-4" />
             Transactions
           </TabsTrigger>
-          <TabsTrigger value="query-interface" className="flex items-center gap-2">
+          <TabsTrigger value="query-interface" className="flex items-center gap-2 data-[state=active]:bg-cyan-100 data-[state=active]:text-cyan-700 dark:data-[state=active]:bg-cyan-900/30 dark:data-[state=active]:text-cyan-400">
             <Play className="w-4 h-4" />
-            Query Test
+            Test
           </TabsTrigger>
-          <TabsTrigger value="tx-interface" className="flex items-center gap-2">
+          <TabsTrigger value="tx-interface" className="flex items-center gap-2 data-[state=active]:bg-violet-100 data-[state=active]:text-violet-700 dark:data-[state=active]:bg-violet-900/30 dark:data-[state=active]:text-violet-400">
             <Zap className="w-4 h-4" />
-            Tx Execute
+            Execute
           </TabsTrigger>
-          <TabsTrigger value="params">Parameters</TabsTrigger>
-          <TabsTrigger value="concepts">Concepts</TabsTrigger>
+          <TabsTrigger value="params" className="data-[state=active]:bg-amber-100 data-[state=active]:text-amber-700 dark:data-[state=active]:bg-amber-900/30 dark:data-[state=active]:text-amber-400">
+            Params
+          </TabsTrigger>
+          <TabsTrigger value="concepts" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-700 dark:data-[state=active]:bg-emerald-900/30 dark:data-[state=active]:text-emerald-400">
+            Info
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="queries" className="space-y-4">

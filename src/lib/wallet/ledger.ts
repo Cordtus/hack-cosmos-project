@@ -1,4 +1,5 @@
-import type { AccountData, OfflineSigner } from '@cosmjs/proto-signing';
+import type { AccountData, OfflineSigner, EncodeObject } from '@cosmjs/proto-signing';
+import type { StdFee } from '@cosmjs/stargate';
 import type { WalletAdapter } from './types';
 
 /**
@@ -42,9 +43,10 @@ export class LedgerWalletAdapter implements WalletAdapter {
   }
 
   async signAndBroadcast(
+    rpcEndpoint: string,
     chainId: string,
-    messages: any[],
-    fee: any,
+    messages: readonly EncodeObject[],
+    fee: StdFee,
     memo: string = ''
   ): Promise<string> {
     throw new Error('Ledger signing requires @cosmjs/ledger-amino package');

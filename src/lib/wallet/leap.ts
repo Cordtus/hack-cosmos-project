@@ -1,4 +1,5 @@
-import type { AccountData, OfflineSigner } from '@cosmjs/proto-signing';
+import type { AccountData, OfflineSigner, EncodeObject } from '@cosmjs/proto-signing';
+import { SigningStargateClient, type StdFee } from '@cosmjs/stargate';
 import type { WalletAdapter } from './types';
 
 // Leap wallet uses similar API to Keplr
@@ -71,22 +72,60 @@ export class LeapWalletAdapter implements WalletAdapter {
   }
 
   async signAndBroadcast(
+    rpcEndpoint: string,
     chainId: string,
-    messages: any[],
-    fee: any,
+    messages: readonly EncodeObject[],
+    fee: StdFee,
     memo: string = ''
   ): Promise<string> {
     if (!this.leap) {
       throw new Error('Leap extension not installed');
     }
 
-    // Get RPC endpoint from chain registry or config
-    const key = await this.leap.getKey(chainId);
+    // Get signer
     const offlineSigner = await this.getSigner(chainId);
+    const accounts = await offlineSigner.getAccounts();
 
-    // This will need RPC endpoint from chain config
-    // For now, we'll throw as this requires integration with chain store
-    throw new Error('signAndBroadcast requires RPC endpoint from chain config');
+    if (accounts.length === 0) {
+      throw new Error('No accounts available');
+    }
+
+    // Create signing client
+    const client = await SigningStargateClient.connectWithSigner(
+      rpcEndpoint,
+      offlineSigner
+    );
+
+    try {
+      // Broadcast transaction
+      const result = await client.signAndBroadcast(
+        accounts[0].address,
+        messages,
+        fee,
+        memo
+      );
+
+      // Check for errors
+      if (result.code !== 0) {
+        throw new Error(`Transaction failed: ${result.rawLog || 'Unknown error'}`);
+      }
+
+      return result.transactionHash;
+    } catch (error) {
+      // Enhance error messages
+      if (error instanceof Error) {
+        if (error.message.includes('insufficient funds')) {
+          throw new Error('Insufficient funds to complete transaction');
+        }
+        if (error.message.includes('out of gas')) {
+          throw new Error('Transaction ran out of gas. Try increasing gas limit.');
+        }
+        if (error.message.includes('rejected')) {
+          throw new Error('Transaction rejected by user');
+        }
+      }
+      throw error;
+    }
   }
 
   async suggestChain(chainConfig: any): Promise<void> {

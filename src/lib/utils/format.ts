@@ -5,7 +5,7 @@ import { format, formatDistanceToNow } from 'date-fns';
  * @example formatAmount('1000000', 6) => '1.000000'
  */
 export function formatAmount(amount: string | number, decimals: number = 6): string {
-  const num = typeof amount === 'string' ? BigInt(amount) : BigInt(amount);
+  const num = BigInt(amount);
   const divisor = BigInt(10 ** decimals);
   const whole = num / divisor;
   const fraction = num % divisor;

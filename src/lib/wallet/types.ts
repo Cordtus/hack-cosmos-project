@@ -3,7 +3,8 @@
  * Common interface for all wallet integrations (Keplr, Leap, Ledger).
  */
 
-import type { AccountData, OfflineSigner } from '@cosmjs/proto-signing';
+import type { AccountData, OfflineSigner, EncodeObject } from '@cosmjs/proto-signing';
+import type { StdFee } from '@cosmjs/stargate';
 
 /**
  * Common interface for wallet adapters.
@@ -34,13 +35,20 @@ export interface WalletAdapter {
 
   /**
    * Sign and broadcast a transaction.
+   * @param {string} rpcEndpoint - RPC endpoint for broadcasting
    * @param {string} chainId - The chain ID
-   * @param {any[]} messages - Array of Cosmos SDK messages
-   * @param {any} fee - Transaction fee object
+   * @param {readonly EncodeObject[]} messages - Array of properly typed Cosmos SDK messages
+   * @param {StdFee} fee - Transaction fee object with proper structure
    * @param {string} [memo] - Optional transaction memo
    * @returns {Promise<string>} Transaction hash
    */
-  signAndBroadcast(chainId: string, messages: any[], fee: any, memo?: string): Promise<string>;
+  signAndBroadcast(
+    rpcEndpoint: string,
+    chainId: string,
+    messages: readonly EncodeObject[],
+    fee: StdFee,
+    memo?: string
+  ): Promise<string>;
 
   /**
    * Check if the wallet extension is available in the browser.

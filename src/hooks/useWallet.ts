@@ -61,13 +61,23 @@ export function useWallet() {
   }, [walletType, selectedChain]);
 
   const signAndBroadcast = useCallback(
-    async (messages: any[], fee: any, memo?: string) => {
+    async (
+      messages: readonly import('@cosmjs/proto-signing').EncodeObject[],
+      fee: import('@cosmjs/stargate').StdFee,
+      memo?: string
+    ) => {
       if (!walletType || !selectedChain) {
         throw new Error('Wallet not connected or no chain selected');
       }
 
       const wallet = getWallet(walletType);
-      return wallet.signAndBroadcast(selectedChain.chainId, messages, fee, memo);
+      return wallet.signAndBroadcast(
+        selectedChain.rpc,
+        selectedChain.chainId,
+        messages,
+        fee,
+        memo
+      );
     },
     [walletType, selectedChain]
   );

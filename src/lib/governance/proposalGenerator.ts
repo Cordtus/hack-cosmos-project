@@ -5,6 +5,7 @@
  */
 
 import type { ParameterSelection, ProposalType } from './types';
+import { shortenAddress } from '../utils/address';
 
 /**
  * Generate a descriptive proposal title from parameter selections.
@@ -148,7 +149,7 @@ function formatValueForDisplay(value: any): string {
  */
 export function generateCommunitySpendTitle(recipient: string, amount: Array<{ amount: string; denom: string }>): string {
   const totalStr = amount.map(a => `${a.amount} ${a.denom}`).join(', ');
-  const shortAddr = recipient.length > 20 ? `${recipient.slice(0, 10)}...${recipient.slice(-8)}` : recipient;
+  const shortAddr = shortenAddress(recipient, 10, 8);
   return `Community Pool Spend: ${totalStr} to ${shortAddr}`;
 }
 
@@ -295,7 +296,7 @@ ${contractList}
  */
 export function generateErc20RegistrationTitle(addresses: string[]): string {
   if (addresses.length === 1) {
-    const shortAddr = addresses[0].slice(0, 10) + '...' + addresses[0].slice(-6);
+    const shortAddr = shortenAddress(addresses[0], 10, 6);
     return `Register ERC20 Token: ${shortAddr}`;
   }
   return `Register ${addresses.length} ERC20 Tokens`;
@@ -331,9 +332,7 @@ These tokens will be enabled for bidirectional conversion between ERC20 and Cosm
  */
 export function generateToggleConversionTitle(token: string): string {
   const isAddress = token.startsWith('0x');
-  const displayToken = isAddress
-    ? `${token.slice(0, 10)}...${token.slice(-6)}`
-    : token;
+  const displayToken = isAddress ? shortenAddress(token, 10, 6) : token;
   return `Toggle Conversion for ${displayToken}`;
 }
 

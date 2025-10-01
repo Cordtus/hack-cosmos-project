@@ -1,7 +1,8 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useWalletStore } from '@/store/wallet';
 import { useChainStore } from '@/store/chain';
 import { getWallet, getAvailableWallets, type WalletType } from '@/lib/wallet';
+import type { ChainConfig } from '@/lib/wallet/types';
 
 export function useWallet() {
   const {
@@ -82,6 +83,40 @@ export function useWallet() {
     [walletType, selectedChain]
   );
 
+  const suggestChain = useCallback(
+    async (chainConfig: ChainConfig) => {
+      if (!walletType) {
+        throw new Error('Wallet not connected');
+      }
+
+      const wallet = getWallet(walletType);
+      if (!wallet.suggestChain) {
+        throw new Error(`${wallet.getName()} does not support suggestChain`);
+      }
+
+      return wallet.suggestChain(chainConfig);
+    },
+    [walletType]
+  );
+
+  // Set up account change listener
+  useEffect(() => {
+    if (!walletType || !isConnected || !selectedChain) {
+      return;
+    }
+
+    const wallet = getWallet(walletType);
+    if (!wallet.onAccountChange) {
+      return; // Wallet doesn't support account change events
+    }
+
+    const cleanup = wallet.onAccountChange(selectedChain.chainId, (newAccount) => {
+      setAccount(newAccount);
+    });
+
+    return cleanup;
+  }, [walletType, isConnected, selectedChain, setAccount]);
+
   const availableWallets = getAvailableWallets();
 
   return {
@@ -96,5 +131,6 @@ export function useWallet() {
     disconnect,
     getSigner,
     signAndBroadcast,
+    suggestChain,
   };
 }

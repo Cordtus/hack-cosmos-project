@@ -1,7 +1,7 @@
 import type { Window as KeplrWindow } from '@keplr-wallet/types';
 import type { AccountData, OfflineSigner } from '@cosmjs/proto-signing';
 import { SigningStargateClient } from '@cosmjs/stargate';
-import type { WalletAdapter } from './types';
+import type { WalletAdapter, ChainConfig } from './types';
 
 declare global {
   interface Window extends KeplrWindow {}
@@ -113,21 +113,85 @@ export class KeplrWalletAdapter implements WalletAdapter {
     }
   }
 
-  async suggestChain(chainConfig: any): Promise<void> {
+  async suggestChain(chainConfig: ChainConfig): Promise<void> {
     if (!this.keplr) {
       throw new Error('Keplr extension not installed');
     }
 
-    await this.keplr.experimentalSuggestChain(chainConfig);
+    // Transform our ChainConfig to Keplr's ChainInfo format
+    const keplrChainInfo = {
+      chainId: chainConfig.chainId,
+      chainName: chainConfig.chainName,
+      rpc: chainConfig.rpc,
+      rest: chainConfig.rest,
+      bip44: {
+        coinType: 118, // Standard Cosmos coinType
+      },
+      bech32Config: {
+        bech32PrefixAccAddr: chainConfig.bech32Prefix,
+        bech32PrefixAccPub: `${chainConfig.bech32Prefix}pub`,
+        bech32PrefixValAddr: `${chainConfig.bech32Prefix}valoper`,
+        bech32PrefixValPub: `${chainConfig.bech32Prefix}valoperpub`,
+        bech32PrefixConsAddr: `${chainConfig.bech32Prefix}valcons`,
+        bech32PrefixConsPub: `${chainConfig.bech32Prefix}valconspub`,
+      },
+      currencies: [
+        {
+          coinDenom: chainConfig.coinDenom,
+          coinMinimalDenom: chainConfig.coinMinimalDenom,
+          coinDecimals: chainConfig.coinDecimals,
+        },
+      ],
+      feeCurrencies: [
+        {
+          coinDenom: chainConfig.coinDenom,
+          coinMinimalDenom: chainConfig.coinMinimalDenom,
+          coinDecimals: chainConfig.coinDecimals,
+          gasPriceStep: {
+            low: 0.01,
+            average: 0.025,
+            high: 0.04,
+          },
+        },
+      ],
+      stakeCurrency: {
+        coinDenom: chainConfig.coinDenom,
+        coinMinimalDenom: chainConfig.coinMinimalDenom,
+        coinDecimals: chainConfig.coinDecimals,
+      },
+      features: chainConfig.features || ['stargate', 'ibc-transfer'],
+    };
+
+    await this.keplr.experimentalSuggestChain(keplrChainInfo);
   }
 
-  onAccountChange(callback: (accounts: readonly AccountData[]) => void): void {
-    if (!this.keplr) return;
+  onAccountChange(
+    chainId: string,
+    callback: (newAccount: AccountData) => void
+  ): () => void {
+    if (!this.keplr) {
+      return () => {}; // Return no-op cleanup function
+    }
 
-    window.addEventListener('keplr_keystorechange', async () => {
-      // Re-fetch accounts when keystore changes
-      // This requires chainId which should come from context
-    });
+    const handler = async () => {
+      try {
+        // Re-fetch account when keystore changes
+        const offlineSigner = this.keplr!.getOfflineSigner(chainId);
+        const accounts = await offlineSigner.getAccounts();
+        if (accounts.length > 0) {
+          callback(accounts[0]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch account after keystore change:', error);
+      }
+    };
+
+    window.addEventListener('keplr_keystorechange', handler);
+
+    // Return cleanup function
+    return () => {
+      window.removeEventListener('keplr_keystorechange', handler);
+    };
   }
 }
 

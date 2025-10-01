@@ -61,6 +61,28 @@ export interface WalletAdapter {
    * @returns {string} Wallet name (e.g., "Keplr", "Leap")
    */
   getName(): string;
+
+  /**
+   * Suggest a chain to the wallet if not already configured.
+   * Prompts the user to add the chain to their wallet.
+   * Optional - not all wallets support this feature.
+   * @param {ChainConfig} chainConfig - Complete chain configuration
+   * @returns {Promise<void>}
+   */
+  suggestChain?(chainConfig: ChainConfig): Promise<void>;
+
+  /**
+   * Set up account change listener.
+   * Callback is invoked when user switches accounts in the wallet extension.
+   * Optional - not all wallets support this feature.
+   * @param {string} chainId - Chain ID to listen for account changes on
+   * @param {(newAccount: AccountData) => void} callback - Function called when account changes
+   * @returns {() => void} Cleanup function to remove the listener
+   */
+  onAccountChange?(
+    chainId: string,
+    callback: (newAccount: AccountData) => void
+  ): () => void;
 }
 
 /**
@@ -91,4 +113,33 @@ export type WalletEventType = 'accountsChanged' | 'chainChanged' | 'disconnect';
  */
 export interface WalletEventListener {
   (event: WalletEventType, data?: any): void;
+}
+
+/**
+ * Chain configuration for suggestChain functionality.
+ * Contains all parameters needed to add a chain to a wallet.
+ *
+ * @interface ChainConfig
+ */
+export interface ChainConfig {
+  /** Chain ID (e.g., "cosmoshub-4") */
+  chainId: string;
+  /** Human-readable chain name (e.g., "Cosmos Hub") */
+  chainName: string;
+  /** RPC endpoint URL */
+  rpc: string;
+  /** REST API endpoint URL */
+  rest: string;
+  /** Bech32 address prefix (e.g., "cosmos") */
+  bech32Prefix: string;
+  /** Display denomination (e.g., "ATOM") */
+  coinDenom: string;
+  /** Minimal denomination for transactions (e.g., "uatom") */
+  coinMinimalDenom: string;
+  /** Number of decimal places (e.g., 6) */
+  coinDecimals: number;
+  /** Gas price string (e.g., "0.025uatom") */
+  gasPrice: string;
+  /** Optional chain features (e.g., ["stargate", "ibc-transfer"]) */
+  features?: string[];
 }

@@ -265,7 +265,7 @@ Testing and deploying protocol upgrades:
 ## Technical Capabilities
 
 ### Supported Proposal Types
-- ✅ **18+ Proposal Types** including:
+-  **18+ Proposal Types** including:
   - Parameter changes (VM, ERC20, Feemarket, Gov, Bank, Staking, Distribution, Slashing, Mint, Consensus)
   - Text/signaling proposals
   - Community pool spending

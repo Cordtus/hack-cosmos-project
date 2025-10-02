@@ -80,17 +80,17 @@ export function Dashboard() {
   return (
     <div className="space-y-6 p-6">
       {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 p-8 text-white">
+      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-primary to-secondary p-8">
         <div className="relative z-10">
-          <h1 className="text-4xl font-bold flex items-center gap-3">
-            <Rocket className="h-10 w-10" />
+          <h1 className="text-4xl font-bold flex items-center gap-3 text-primary-foreground">
+            <img src="/cosmos-logo-animated.svg" alt="Cosmos" className="h-12 w-12" />
             Chain Orchestrator
           </h1>
-          <p className="mt-2 text-lg opacity-90">
-            Your comprehensive toolkit for Cosmos blockchain operations
+          <p className="mt-2 text-lg text-primary-foreground/90">
+            Your comprehensive toolkit for Cosmos SDK blockchain operations
           </p>
         </div>
-        <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-transparent to-white/10" />
+        <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-transparent to-background/10" />
       </div>
 
       {/* Connection Status */}

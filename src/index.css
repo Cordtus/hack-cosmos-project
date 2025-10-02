@@ -37,30 +37,31 @@
   }
 
   .dark {
-    --color-background: 222.2 84% 4.9%;
-    --color-foreground: 210 40% 98%;
-    --color-card: 222.2 84% 4.9%;
-    --color-card-foreground: 210 40% 98%;
-    --color-popover: 222.2 84% 4.9%;
-    --color-popover-foreground: 210 40% 98%;
-    --color-primary: 262 80% 60%;
-    --color-primary-foreground: 222.2 47.4% 11.2%;
-    --color-secondary: 217.2 32.6% 17.5%;
-    --color-secondary-foreground: 210 40% 98%;
-    --color-muted: 217.2 32.6% 17.5%;
-    --color-muted-foreground: 215 20.2% 65.1%;
-    --color-accent: 262 60% 25%;
-    --color-accent-foreground: 262 100% 88%;
-    --color-destructive: 0 62.8% 30.6%;
-    --color-destructive-foreground: 210 40% 98%;
-    --color-border: 217.2 32.6% 17.5%;
-    --color-input: 217.2 32.6% 17.5%;
-    --color-ring: 262 80% 60%;
-    --color-chart-1: 262 80% 60%;
-    --color-chart-2: 160 60% 45%;
-    --color-chart-3: 30 80% 55%;
-    --color-chart-4: 280 65% 60%;
-    --color-chart-5: 340 75% 55%;
+    /* EVM Docs inspired dark theme */
+    --color-background: 18 10% 4%; /* darkGray1: #0b0a09 */
+    --color-foreground: 37 47% 88%; /* pearl: #faf1e4 */
+    --color-card: 26 10% 16%; /* darkGray2: #2D2925 */
+    --color-card-foreground: 37 47% 88%;
+    --color-popover: 26 10% 16%;
+    --color-popover-foreground: 37 47% 88%;
+    --color-primary: 7 80% 55%; /* red: #ed4e33 */
+    --color-primary-foreground: 37 47% 88%;
+    --color-secondary: 72 80% 37%; /* green: #97ad11 */
+    --color-secondary-foreground: 18 10% 4%;
+    --color-muted: 27 13% 28%; /* darkGray3: #4f4740 */
+    --color-muted-foreground: 29 11% 82%; /* darkPearl: #dad2c7 */
+    --color-accent: 72 80% 37%; /* green accent */
+    --color-accent-foreground: 18 10% 4%;
+    --color-destructive: 8 76% 39%; /* red1: #AA2912 */
+    --color-destructive-foreground: 37 47% 88%;
+    --color-border: 28 13% 42%; /* darkGray4: #70655c */
+    --color-input: 26 10% 16%;
+    --color-ring: 7 80% 55%;
+    --color-chart-1: 7 80% 55%; /* red */
+    --color-chart-2: 72 80% 37%; /* green */
+    --color-chart-3: 36 40% 88%; /* skinTan */
+    --color-chart-4: 28 13% 50%; /* darkGray5 */
+    --color-chart-5: 29 11% 82%; /* darkPearl */
   }
 
   * {

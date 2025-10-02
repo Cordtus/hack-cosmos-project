@@ -22,9 +22,9 @@ async signAndBroadcast(...): Promise<string> {
 ```
 
 **Dependencies:**
-- Chain store already exists at `src/store/chain.ts` ✅
-- Has `ChainConfig` interface with `rpc` property ✅
-- CosmJS packages already installed ✅
+- Chain store already exists at `src/store/chain.ts` 
+- Has `ChainConfig` interface with `rpc` property 
+- CosmJS packages already installed 
 
 **Implementation Steps:**
 
@@ -355,8 +355,8 @@ onAccountChange(callback: (accounts: readonly AccountData[]) => void): void {
 ```typescript
 signAndBroadcast(
   chainId: string,
-  messages: any[],     // ❌ Weak
-  fee: any,            // ❌ Weak
+  messages: any[],     //  Weak
+  fee: any,            //  Weak
   memo?: string
 ): Promise<string>
 ```
@@ -366,8 +366,8 @@ signAndBroadcast(
 signAndBroadcast(
   rpcEndpoint: string,
   chainId: string,
-  messages: readonly EncodeObject[],  // ✅ Strong
-  fee: StdFee,                        // ✅ Strong
+  messages: readonly EncodeObject[],  //  Strong
+  fee: StdFee,                        //  Strong
   memo?: string
 ): Promise<string>
 ```

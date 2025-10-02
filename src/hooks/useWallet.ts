@@ -4,6 +4,47 @@ import { useChainStore } from '@/store/chain';
 import { getWallet, getAvailableWallets, type WalletType } from '@/lib/wallet';
 import type { ChainConfig } from '@/lib/wallet/types';
 
+/**
+ * React hook for wallet management in Cosmos SDK applications
+ *
+ * @description
+ * Provides a comprehensive interface for wallet operations including connection,
+ * disconnection, signing, and transaction broadcasting. Supports multiple wallet
+ * types (Keplr, Leap, Ledger) with automatic account change detection.
+ *
+ * @example
+ * ```tsx
+ * function WalletButton() {
+ *   const { isConnected, account, connect, disconnect } = useWallet();
+ *
+ *   if (isConnected) {
+ *     return (
+ *       <div>
+ *         <span>{account.address}</span>
+ *         <button onClick={disconnect}>Disconnect</button>
+ *       </div>
+ *     );
+ *   }
+ *
+ *   return (
+ *     <button onClick={() => connect('keplr')}>
+ *       Connect Wallet
+ *     </button>
+ *   );
+ * }
+ * ```
+ *
+ * @returns {Object} Wallet state and action methods
+ * @returns {WalletType | null} walletType - Currently connected wallet type
+ * @returns {boolean} isConnected - Whether a wallet is connected
+ * @returns {Account | null} account - Current account information
+ * @returns {WalletType[]} availableWallets - List of detected wallet extensions
+ * @returns {Function} connect - Connect to a specific wallet type
+ * @returns {Function} disconnect - Disconnect current wallet
+ * @returns {Function} getSigner - Get offline signer for transaction signing
+ * @returns {Function} signAndBroadcast - Sign and broadcast transactions
+ * @returns {Function} suggestChain - Suggest chain configuration to wallet
+ */
 export function useWallet() {
   const {
     walletType,

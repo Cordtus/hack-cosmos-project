@@ -25,11 +25,17 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" />
+        <div className="flex items-center gap-3">
+          <img
+            src="/cosmos-logo-animated.svg"
+            alt="Cosmos Logo"
+            className="h-10 w-10"
+          />
           <div>
-            <h1 className="text-lg font-bold">Chain Orchestrator</h1>
-            <p className="text-xs text-muted-foreground">Cosmos Governance & Tools</p>
+            <h1 className="text-lg font-bold bg-gradient-to-r from-red-500 to-green-500 bg-clip-text text-transparent">
+              Chain Orchestrator
+            </h1>
+            <p className="text-xs text-muted-foreground">Cosmos SDK Management Platform</p>
           </div>
         </div>
 

@@ -36,7 +36,7 @@ Implement comprehensive support for all Cosmos SDK governance proposal types wit
    - Non-binding governance votes
    - No messages, just metadata
 
-## Completed Tasks ✅
+## Completed Tasks 
 
 ### 1. Research & Analysis
 - [x] Deep dive into Cosmos SDK governance proposal types
@@ -79,7 +79,7 @@ Implement comprehensive support for all Cosmos SDK governance proposal types wit
   - `clientUpdateData`
   - `customMessageData`
 
-## Remaining Tasks 🚧
+## Remaining Tasks 
 
 ### 1. Complete ProposalWizard Integration
 - [ ] Update `canProceedFromConfigure()` to handle CLIENT_UPDATE and CUSTOM_MESSAGE

@@ -1,6 +1,39 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+/**
+ * Chain configuration for Cosmos SDK networks
+ *
+ * @interface ChainConfig
+ * @property {string} chainId - Unique chain identifier (e.g., 'cosmoshub-4')
+ * @property {string} chainName - Human-readable chain name
+ * @property {string} rpc - RPC endpoint URL
+ * @property {string} rest - REST/LCD endpoint URL
+ * @property {string} bech32Prefix - Address prefix (e.g., 'cosmos', 'evmos')
+ * @property {string} coinDenom - Display denomination (e.g., 'ATOM')
+ * @property {string} coinMinimalDenom - Minimal denomination (e.g., 'uatom')
+ * @property {number} coinDecimals - Decimal places for denomination conversion
+ * @property {string} [coinGeckoId] - CoinGecko ID for price queries
+ * @property {string} gasPrice - Default gas price with denom (e.g., '0.025uatom')
+ * @property {string[]} [features] - Supported features (e.g., 'evm', 'ibc-transfer')
+ *
+ * @example
+ * ```ts
+ * const cosmosHub: ChainConfig = {
+ *   chainId: 'cosmoshub-4',
+ *   chainName: 'Cosmos Hub',
+ *   rpc: 'https://rpc.cosmos.network',
+ *   rest: 'https://lcd.cosmos.network',
+ *   bech32Prefix: 'cosmos',
+ *   coinDenom: 'ATOM',
+ *   coinMinimalDenom: 'uatom',
+ *   coinDecimals: 6,
+ *   coinGeckoId: 'cosmos',
+ *   gasPrice: '0.025uatom',
+ *   features: ['ibc-transfer', 'cosmwasm']
+ * };
+ * ```
+ */
 export interface ChainConfig {
   chainId: string;
   chainName: string;
@@ -15,6 +48,18 @@ export interface ChainConfig {
   features?: string[];
 }
 
+/**
+ * Chain state management interface
+ *
+ * @interface ChainState
+ * @property {ChainConfig | null} selectedChain - Currently selected chain
+ * @property {ChainConfig[]} chains - All available chain configurations
+ * @property {Function} setSelectedChain - Change the active chain
+ * @property {Function} addChain - Add a new chain configuration
+ * @property {Function} removeChain - Remove a chain by ID
+ * @property {Function} updateChain - Update an existing chain's configuration
+ * @property {Function} getChain - Get a chain configuration by ID
+ */
 interface ChainState {
   // Current chain
   selectedChain: ChainConfig | null;
@@ -58,6 +103,35 @@ const DEFAULT_CHAINS: ChainConfig[] = [
   },
 ];
 
+/**
+ * Global chain configuration store with persistence
+ *
+ * @description
+ * Manages blockchain network configurations and the currently selected chain.
+ * Persists all chain configurations and selection to localStorage.
+ * Includes default configurations for Cosmos Hub and Evmos networks.
+ *
+ * @example
+ * ```tsx
+ * // In a React component
+ * function ChainSelector() {
+ *   const { selectedChain, chains, setSelectedChain } = useChainStore();
+ *
+ *   return (
+ *     <select onChange={(e) => {
+ *       const chain = chains.find(c => c.chainId === e.target.value);
+ *       if (chain) setSelectedChain(chain);
+ *     }}>
+ *       {chains.map(chain => (
+ *         <option key={chain.chainId} value={chain.chainId}>
+ *           {chain.chainName}
+ *         </option>
+ *       ))}
+ *     </select>
+ *   );
+ * }
+ * ```
+ */
 export const useChainStore = create<ChainState>()(
   persist(
     (set, get) => ({

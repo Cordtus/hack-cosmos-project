@@ -32,12 +32,12 @@ export function cosmosToEvm(cosmosAddress: string): string {
  * Decodes the hex address and encodes it with the specified bech32 prefix.
  *
  * @param {string} evmAddress - 0x-prefixed hex address
- * @param {string} [prefix='cosmos'] - Bech32 prefix (e.g., 'cosmos', 'evmos', 'osmo')
+ * @param {string} [prefix='cosmos'] - Bech32 prefix (e.g., 'cosmos', 'cosmos', 'osmo')
  * @returns {string} Bech32-encoded address with the specified prefix
  * @throws {Error} If the address is invalid
  * @example
  * evmToCosmos('0x1234...', 'cosmos') // Returns: 'cosmos1abc...'
- * evmToCosmos('0x1234...', 'evmos') // Returns: 'evmos1abc...'
+ * evmToCosmos('0x1234...', 'cosmos') // Returns: 'cosmos1abc...'
  */
 export function evmToCosmos(evmAddress: string, prefix: string = 'cosmos'): string {
   try {
@@ -55,11 +55,11 @@ export function evmToCosmos(evmAddress: string, prefix: string = 'cosmos'): stri
  * Checks if the address is properly formatted and optionally matches a specific prefix.
  *
  * @param {string} address - Address to validate
- * @param {string} [prefix] - Optional prefix to match (e.g., 'cosmos', 'evmos')
+ * @param {string} [prefix] - Optional prefix to match (e.g., 'cosmos', 'cosmos')
  * @returns {boolean} True if valid, false otherwise
  * @example
  * isValidCosmosAddress('cosmos1abc...') // Returns: true
- * isValidCosmosAddress('cosmos1abc...', 'evmos') // Returns: false (prefix mismatch)
+ * isValidCosmosAddress('cosmos1abc...', 'cosmos') // Returns: false (prefix mismatch)
  */
 export function isValidCosmosAddress(address: string, prefix?: string): boolean {
   try {
@@ -103,14 +103,14 @@ export function shortenAddress(address: string, startChars: number = 10, endChar
 
 /**
  * Get address prefix from bech32 address.
- * Extracts the human-readable prefix (e.g., 'cosmos', 'evmos') from a bech32 address.
+ * Extracts the human-readable prefix (e.g., 'cosmos', 'cosmos') from a bech32 address.
  *
  * @param {string} address - Bech32 address
  * @returns {string} The address prefix
  * @throws {Error} If the address is invalid
  * @example
  * getAddressPrefix('cosmos1abc...') // Returns: 'cosmos'
- * getAddressPrefix('evmos1xyz...') // Returns: 'evmos'
+ * getAddressPrefix('cosmos1xyz...') // Returns: 'cosmos'
  */
 export function getAddressPrefix(address: string): string {
   try {

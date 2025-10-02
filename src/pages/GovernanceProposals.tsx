@@ -28,14 +28,14 @@ export function GovernanceProposals() {
       title: 'Update VM Module Parameters',
       status: 'voting_period',
       votingEnd: '2024-12-25T12:00:00Z',
-      totalDeposit: '1000 EVMOS',
+      totalDeposit: '1000 ATOM',
     },
     {
       id: '99',
       title: 'Enable New ERC20 Token Pair',
       status: 'passed',
       votingEnd: '2024-12-20T12:00:00Z',
-      totalDeposit: '500 EVMOS',
+      totalDeposit: '500 ATOM',
     },
   ];
 

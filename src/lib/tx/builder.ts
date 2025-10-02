@@ -25,7 +25,7 @@ export function buildFee(
   payer?: string,
   granter?: string
 ): StdFee {
-  // Parse gas price (e.g., "0.025uatom" or "25000000000aevmos")
+  // Parse gas price (e.g., "0.025uatom" or "25000000000aatom")
   const match = gasPrice.match(/^([\d.]+)(.+)$/);
   if (!match) {
     throw new Error(`Invalid gas price format: ${gasPrice}. Expected format: "0.025uatom"`);

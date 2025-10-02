@@ -14,7 +14,7 @@ import { shortenAddress } from '../utils/address';
  * @param {ParameterSelection[]} selections - Array of parameter selections with module, parameter, and value
  * @returns {string} A formatted proposal title (e.g., "Update VM Evm Denom" or "Update 3 FEEMARKET Parameters")
  * @example
- * const selections = [{module: 'vm', parameter: 'evm_denom', value: 'aevmos'}];
+ * const selections = [{module: 'vm', parameter: 'evm_denom', value: 'aatom'}];
  * generateParameterChangeTitle(selections); // Returns: "Update VM Evm Denom"
  */
 export function generateParameterChangeTitle(selections: ParameterSelection[]): string {
@@ -56,7 +56,7 @@ export function generateParameterChangeTitle(selections: ParameterSelection[]): 
  * @param {ParameterSelection[]} selections - Array of parameter selections
  * @returns {string} A markdown-formatted summary with parameter details grouped by module
  * @example
- * const selections = [{module: 'vm', parameter: 'evm_denom', value: 'aevmos', description: 'Test update'}];
+ * const selections = [{module: 'vm', parameter: 'evm_denom', value: 'aatom', description: 'Test update'}];
  * const summary = generateParameterChangeSummary(selections);
  * // Returns formatted markdown with module sections and parameter changes
  */

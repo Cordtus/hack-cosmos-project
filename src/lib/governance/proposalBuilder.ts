@@ -48,11 +48,11 @@ export interface BuiltProposal {
  * @returns {ProposalMessage[]} Array of MsgUpdateParams messages (one per module)
  * @example
  * const selections = [
- *   {module: 'vm', parameter: 'evm_denom', value: 'aevmos'},
+ *   {module: 'vm', parameter: 'evm_denom', value: 'aatom'},
  *   {module: 'vm', parameter: 'enable_create', value: true}
  * ];
  * const messages = buildParameterChangeMessages(selections);
- * // Returns: [{@type: '/evmos.evm.vm.v1.MsgUpdateParams', authority: '...', params: {...}}]
+ * // Returns: [{@type: '/cosmos.evm.vm.v1.MsgUpdateParams', authority: '...', params: {...}}]
  */
 export function buildParameterChangeMessages(parameterSelections: ParameterSelection[]): ProposalMessage[] {
   const messages: ProposalMessage[] = [];

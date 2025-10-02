@@ -225,7 +225,7 @@ export function ModulesVM() {
         {
           name: 'evmDenom',
           type: 'string' as const,
-          placeholder: 'aevmos',
+          placeholder: 'aatom',
           description: 'EVM denomination'
         },
         {
@@ -355,7 +355,7 @@ export function ModulesVM() {
                     <span className="text-muted-foreground">Type:</span>
                     <code className="bg-muted px-2 py-1 rounded">string</code>
                     <span className="text-muted-foreground">Default:</span>
-                    <code className="bg-muted px-2 py-1 rounded">aevmos</code>
+                    <code className="bg-muted px-2 py-1 rounded">aatom</code>
                   </div>
                 </div>
 

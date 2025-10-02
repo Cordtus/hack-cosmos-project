@@ -9,7 +9,7 @@ import { persist } from 'zustand/middleware';
  * @property {string} chainName - Human-readable chain name
  * @property {string} rpc - RPC endpoint URL
  * @property {string} rest - REST/LCD endpoint URL
- * @property {string} bech32Prefix - Address prefix (e.g., 'cosmos', 'evmos')
+ * @property {string} bech32Prefix - Address prefix (e.g., 'cosmos', 'cosmos')
  * @property {string} coinDenom - Display denomination (e.g., 'ATOM')
  * @property {string} coinMinimalDenom - Minimal denomination (e.g., 'uatom')
  * @property {number} coinDecimals - Decimal places for denomination conversion
@@ -89,16 +89,16 @@ const DEFAULT_CHAINS: ChainConfig[] = [
     features: ['ibc-transfer', 'cosmwasm'],
   },
   {
-    chainId: 'evmos_9001-2',
+    chainId: 'cosmos_9001-2',
     chainName: 'Evmos',
-    rpc: 'https://rpc.evmos.org',
-    rest: 'https://lcd.evmos.org',
-    bech32Prefix: 'evmos',
-    coinDenom: 'EVMOS',
-    coinMinimalDenom: 'aevmos',
+    rpc: 'https://rpc.cosmos.org',
+    rest: 'https://lcd.cosmos.org',
+    bech32Prefix: 'cosmos',
+    coinDenom: 'ATOM',
+    coinMinimalDenom: 'aatom',
     coinDecimals: 18,
-    coinGeckoId: 'evmos',
-    gasPrice: '25000000000aevmos',
+    coinGeckoId: 'cosmos',
+    gasPrice: '25000000000aatom',
     features: ['evm', 'ibc-transfer'],
   },
 ];

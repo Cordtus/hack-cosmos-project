@@ -56,7 +56,7 @@ export function EvmToggleConversionForm({ onSubmit, onBack }: EvmToggleConversio
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="cosmos" id="cosmos" />
               <Label htmlFor="cosmos" className="font-normal cursor-pointer">
-                Cosmos Base Denomination (e.g., uatom, aevmos)
+                Cosmos Base Denomination (e.g., uatom, aatom)
               </Label>
             </div>
           </RadioGroup>
@@ -70,13 +70,13 @@ export function EvmToggleConversionForm({ onSubmit, onBack }: EvmToggleConversio
             id="token"
             value={token}
             onChange={(e) => setToken(e.target.value)}
-            placeholder={tokenType === 'evm' ? '0x...' : 'e.g., aevmos, uatom'}
+            placeholder={tokenType === 'evm' ? '0x...' : 'e.g., aatom, uatom'}
             className={tokenType === 'evm' ? 'font-mono' : ''}
           />
           <p className="text-xs text-muted-foreground">
             {tokenType === 'evm'
               ? 'ERC20 contract address in hexadecimal format'
-              : 'Base denomination as registered on the chain (e.g., aevmos for EVMOS)'}
+              : 'Base denomination as registered on the chain (e.g., aatom for ATOM)'}
           </p>
         </div>
 

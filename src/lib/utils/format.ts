@@ -55,7 +55,7 @@ export function parseAmount(amount: string, decimals: number = 6): string {
  * @returns {string} Formatted coin string (e.g., "1.000000 ATOM")
  * @example
  * formatCoin({ amount: '1000000', denom: 'uatom' }, 6); // Returns: '1.000000 ATOM'
- * formatCoin({ amount: '1000000000000000000', denom: 'aevmos' }, 18); // Returns: '1.000000000000000000 EVMOS'
+ * formatCoin({ amount: '1000000000000000000', denom: 'aatom' }, 18); // Returns: '1.000000000000000000 ATOM'
  */
 export function formatCoin(coin: { amount: string; denom: string }, decimals: number = 6): string {
   const amount = formatAmount(coin.amount, decimals);

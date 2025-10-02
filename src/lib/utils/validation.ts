@@ -11,12 +11,12 @@ import { isValidCosmosAddress, isValidEvmAddress } from './address';
  * Zod schema for Cosmos bech32 address validation.
  * Validates address format and optional prefix matching.
  *
- * @param {string} [prefix] - Optional bech32 prefix to enforce (e.g., "cosmos", "evmos")
+ * @param {string} [prefix] - Optional bech32 prefix to enforce (e.g., "cosmos", "cosmos")
  * @returns {z.ZodEffects<z.ZodString>} Zod schema for address validation
  * @example
  * const schema = cosmosAddressSchema('cosmos');
  * schema.parse('cosmos1abc123...'); // Valid
- * schema.parse('evmos1abc123...'); // Throws error - wrong prefix
+ * schema.parse('cosmos1abc123...'); // Throws error - wrong prefix
  */
 export const cosmosAddressSchema = (prefix?: string) =>
   z.string().refine((val) => isValidCosmosAddress(val, prefix), {

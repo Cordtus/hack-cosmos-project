@@ -16,7 +16,7 @@ export function TransactionsSend() {
   const { isConnected, account } = useWallet();
   const { selectedChain } = useChainStore();
   const [recipient, setRecipient] = useState('');
-  const [amount, setAmount] = useState({ amount: '0', denom: selectedChain?.coinMinimalDenom || 'uevmos' });
+  const [amount, setAmount] = useState({ amount: '0', denom: selectedChain?.coinMinimalDenom || 'ucosmos' });
   const [memo, setMemo] = useState('');
   const [isValidAddress, setIsValidAddress] = useState(false);
 
@@ -71,10 +71,10 @@ export function TransactionsSend() {
                   onChange={(value) => {
                     setRecipient(value);
                     // Validate the address
-                    const isValid = value.startsWith('evmos1') || value.startsWith('0x');
+                    const isValid = value.startsWith('cosmos1') || value.startsWith('0x');
                     setIsValidAddress(isValid && value.length > 10);
                   }}
-                  placeholder="evmos1... or 0x..."
+                  placeholder="cosmos1... or 0x..."
                 />
               </div>
 

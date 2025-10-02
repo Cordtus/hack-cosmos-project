@@ -757,7 +757,7 @@ export function ProposalWizard() {
               {/* JSON Preview - Collapsible */}
               <ProposalJsonPreview
                 proposal={buildProposalMessages()}
-                cliCommand={generateCliCommand(buildProposalMessages()!, selectedChain?.chainId || 'evmos_9001-2')}
+                cliCommand={generateCliCommand(buildProposalMessages()!, selectedChain?.chainId || 'cosmos_9001-2')}
                 title="Proposal JSON"
                 description="Technical details for CLI submission"
               />

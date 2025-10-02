@@ -108,7 +108,7 @@ export const defaultTemplates: Omit<ProposalTemplate, 'id' | 'createdAt' | 'upda
       amount: [
         {
           amount: '100000000000000000000', // 100 tokens with 18 decimals
-          denom: 'aevmos',
+          denom: 'aatom',
         },
       ],
       title: 'Community Pool Spend: Marketing Campaign',
@@ -125,7 +125,7 @@ export const defaultTemplates: Omit<ProposalTemplate, 'id' | 'createdAt' | 'upda
       amount: [
         {
           amount: '500000000000000000000', // 500 tokens with 18 decimals
-          denom: 'aevmos',
+          denom: 'aatom',
         },
       ],
       title: 'Community Pool Spend: Developer Grants',

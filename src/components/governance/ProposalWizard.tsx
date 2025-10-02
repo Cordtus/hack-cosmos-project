@@ -88,6 +88,9 @@ export function ProposalWizard() {
   // For custom message
   const [customMessageData, setCustomMessageData] = useState<any>(null);
 
+  // For EVM governance sub-type selection
+  const [evmSubType, setEvmSubType] = useState<'register_preinstalls' | 'register_erc20' | 'toggle_conversion' | null>(null);
+
   const steps: Array<{ id: ProposalStep; label: string; icon: any }> = [
     { id: 'type', label: 'Type', icon: Settings },
     { id: 'configure', label: 'Configure', icon: Settings },
@@ -107,25 +110,25 @@ export function ProposalWizard() {
     let title = '';
     let summary = '';
 
-    if (proposalType?.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE && parameterSelections.length > 0) {
+    if (proposalType?.id === 'parameter_change' && parameterSelections.length > 0) {
       title = generateParameterChangeTitle(parameterSelections);
       summary = generateParameterChangeSummary(parameterSelections);
-    } else if (proposalType?.category === PROPOSAL_CATEGORIES.COMMUNITY_POOL_SPEND && communitySpendData) {
+    } else if (proposalType?.id === 'community_pool_spend' && communitySpendData) {
       title = generateCommunitySpendTitle(communitySpendData.recipient, communitySpendData.amount);
       summary = generateCommunitySpendSummary(communitySpendData.recipient, communitySpendData.amount);
-    } else if (proposalType?.category === PROPOSAL_CATEGORIES.SOFTWARE_UPGRADE && upgradeData) {
+    } else if (proposalType?.id === 'software_upgrade' && upgradeData) {
       title = generateSoftwareUpgradeTitle(upgradeData.name, upgradeData.height);
       summary = generateSoftwareUpgradeSummary(upgradeData.name, upgradeData.height, upgradeData.info);
-    } else if (proposalType?.category === PROPOSAL_CATEGORIES.IBC_CLIENT && ibcClientData) {
+    } else if (proposalType?.id === 'ibc_client_update' && ibcClientData) {
       title = generateIbcClientTitle(ibcClientData.allowedClients);
       summary = generateIbcClientSummary(ibcClientData.allowedClients);
-    } else if (proposalType?.id === 'evm_register_preinstalls' && evmPreinstallsData) {
+    } else if (proposalType?.id === 'evm_governance' && evmPreinstallsData) {
       title = generatePreinstallTitle(evmPreinstallsData.preinstalls);
       summary = generatePreinstallSummary(evmPreinstallsData.preinstalls);
-    } else if (proposalType?.id === 'evm_register_erc20' && evmErc20Data) {
+    } else if (proposalType?.id === 'evm_governance' && evmErc20Data) {
       title = generateErc20RegistrationTitle(evmErc20Data.erc20Addresses);
       summary = generateErc20RegistrationSummary(evmErc20Data.erc20Addresses);
-    } else if (proposalType?.id === 'evm_toggle_conversion' && evmToggleConversionData) {
+    } else if (proposalType?.id === 'evm_governance' && evmToggleConversionData) {
       title = generateToggleConversionTitle(evmToggleConversionData.token);
       summary = generateToggleConversionSummary(evmToggleConversionData.token);
     }
@@ -139,26 +142,29 @@ export function ProposalWizard() {
     }
   };
   const canProceedFromConfigure = () => {
-    if (proposalType?.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE) {
+    if (proposalType?.id === 'parameter_change') {
       return parameterSelections.length > 0;
     }
-    if (proposalType?.category === PROPOSAL_CATEGORIES.COMMUNITY_POOL_SPEND) {
+    if (proposalType?.id === 'community_pool_spend') {
       return communitySpendData !== null;
     }
-    if (proposalType?.category === PROPOSAL_CATEGORIES.SOFTWARE_UPGRADE) {
+    if (proposalType?.id === 'software_upgrade') {
       return upgradeData !== null;
     }
-    if (proposalType?.category === PROPOSAL_CATEGORIES.IBC_CLIENT) {
+    if (proposalType?.id === 'ibc_client_update') {
       return ibcClientData !== null;
     }
-    if (proposalType?.category === PROPOSAL_CATEGORIES.EVM_GOVERNANCE) {
+    if (proposalType?.id === 'evm_governance') {
       return evmPreinstallsData !== null || evmErc20Data !== null || evmToggleConversionData !== null;
     }
-    if (proposalType?.category === PROPOSAL_CATEGORIES.TEXT) {
+    if (proposalType?.id === 'text') {
       return true;
     }
-    if (proposalType?.category === PROPOSAL_CATEGORIES.CANCEL_UPGRADE) {
+    if (proposalType?.id === 'cancel_upgrade') {
       return true;
+    }
+    if (proposalType?.id === 'custom_message') {
+      return customMessageData !== null;
     }
     return false;
   };
@@ -257,12 +263,22 @@ export function ProposalWizard() {
       {/* Step: Configure */}
       {step === 'configure' && (
         <div className="space-y-4">
-          {proposalType?.category === PROPOSAL_CATEGORIES.PARAMETER_CHANGE && (
+          {proposalType?.id === 'parameter_change' && (
             <>
-              <ParameterSelector
-                onSelectionChange={setParameterSelections}
-                initialSelections={parameterSelections}
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Configure Parameter Changes</CardTitle>
+                  <CardDescription>
+                    Select the module and parameters you want to modify
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ParameterSelector
+                    onSelectionChange={setParameterSelections}
+                    initialSelections={parameterSelections}
+                  />
+                </CardContent>
+              </Card>
               <div className="flex justify-between gap-3 pt-2">
                 <Button
                   variant="outline"
@@ -288,7 +304,7 @@ export function ProposalWizard() {
             </>
           )}
 
-          {proposalType?.category === PROPOSAL_CATEGORIES.TEXT && (
+          {proposalType?.id === 'text' && (
             <>
               <TextProposalForm onComplete={() => setStep('details')} />
               <div className="flex justify-between gap-3 pt-2">
@@ -315,7 +331,7 @@ export function ProposalWizard() {
             </>
           )}
 
-          {proposalType?.category === PROPOSAL_CATEGORIES.COMMUNITY_POOL_SPEND && (
+          {proposalType?.id === 'community_pool_spend' && (
             <CommunityPoolSpendForm
               onSubmit={(data) => {
                 setCommunitySpendData(data);
@@ -334,7 +350,7 @@ export function ProposalWizard() {
             />
           )}
 
-          {proposalType?.category === PROPOSAL_CATEGORIES.SOFTWARE_UPGRADE && (
+          {proposalType?.id === 'software_upgrade' && (
             <SoftwareUpgradeForm
               onSubmit={(data) => {
                 setUpgradeData(data);
@@ -353,7 +369,7 @@ export function ProposalWizard() {
             />
           )}
 
-          {proposalType?.category === PROPOSAL_CATEGORIES.CANCEL_UPGRADE && (
+          {proposalType?.id === 'cancel_upgrade' && (
             <>
               <Alert>
                 <Info className="h-4 w-4" />
@@ -385,7 +401,7 @@ export function ProposalWizard() {
             </>
           )}
 
-          {proposalType?.category === PROPOSAL_CATEGORIES.IBC_CLIENT && (
+          {proposalType?.id === 'ibc_client_update' && (
             <IbcClientParamsForm
               onSubmit={(data) => {
                 setIbcClientData(data);
@@ -404,61 +420,154 @@ export function ProposalWizard() {
             />
           )}
 
-          {proposalType?.id === 'evm_register_preinstalls' && (
-            <EvmRegisterPreinstallsForm
-              onSubmit={(data) => {
-                setEvmPreinstallsData(data);
-                setTimeout(() => {
-                  const title = generatePreinstallTitle(data.preinstalls);
-                  const summary = generatePreinstallSummary(data.preinstalls);
-                  setMetadata(prev => ({
-                    ...prev,
-                    title: prev.title || title,
-                    summary: prev.summary || summary,
-                  }));
-                }, 0);
-                setStep('details');
-              }}
-              onBack={() => setStep('type')}
-            />
+          {proposalType?.id === 'evm_governance' && (
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Select EVM Governance Action</CardTitle>
+                  <CardDescription>
+                    Choose the type of EVM operation you want to propose
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-4">
+                    <Button
+                      variant="outline"
+                      className="h-auto p-4 justify-start text-left"
+                      onClick={() => {
+                        setEvmSubType('register_preinstalls');
+                      }}
+                    >
+                      <div className="space-y-1">
+                        <div className="font-semibold">Register Preinstalled Contracts</div>
+                        <div className="text-sm text-muted-foreground">
+                          Deploy preinstalled smart contracts to the EVM state
+                        </div>
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-auto p-4 justify-start text-left"
+                      onClick={() => {
+                        setEvmSubType('register_erc20');
+                      }}
+                    >
+                      <div className="space-y-1">
+                        <div className="font-semibold">Register ERC20 Tokens</div>
+                        <div className="text-sm text-muted-foreground">
+                          Register ERC20 contracts for Cosmos Coin conversion
+                        </div>
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-auto p-4 justify-start text-left"
+                      onClick={() => {
+                        setEvmSubType('toggle_conversion');
+                      }}
+                    >
+                      <div className="space-y-1">
+                        <div className="font-semibold">Toggle Token Conversion</div>
+                        <div className="text-sm text-muted-foreground">
+                          Enable or disable conversion for token pairs
+                        </div>
+                      </div>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {evmSubType === 'register_preinstalls' && (
+                <EvmRegisterPreinstallsForm
+                  onSubmit={(data) => {
+                    setEvmPreinstallsData(data);
+                    setTimeout(() => {
+                      const title = generatePreinstallTitle(data.preinstalls);
+                      const summary = generatePreinstallSummary(data.preinstalls);
+                      setMetadata(prev => ({
+                        ...prev,
+                        title: prev.title || title,
+                        summary: prev.summary || summary,
+                      }));
+                    }, 0);
+                    setStep('details');
+                  }}
+                  onBack={() => setEvmSubType(null)}
+                />
+              )}
+
+              {evmSubType === 'register_erc20' && (
+                <EvmRegisterErc20Form
+                  onSubmit={(data) => {
+                    setEvmErc20Data(data);
+                    setTimeout(() => {
+                      const title = generateErc20RegistrationTitle(data.erc20Addresses);
+                      const summary = generateErc20RegistrationSummary(data.erc20Addresses);
+                      setMetadata(prev => ({
+                        ...prev,
+                        title: prev.title || title,
+                        summary: prev.summary || summary,
+                      }));
+                    }, 0);
+                    setStep('details');
+                  }}
+                  onBack={() => setEvmSubType(null)}
+                />
+              )}
+
+              {evmSubType === 'toggle_conversion' && (
+                <EvmToggleConversionForm
+                  onSubmit={(data) => {
+                    setEvmToggleConversionData(data);
+                    setTimeout(() => {
+                      const title = generateToggleConversionTitle(data.token);
+                      const summary = generateToggleConversionSummary(data.token);
+                      setMetadata(prev => ({
+                        ...prev,
+                        title: prev.title || title,
+                        summary: prev.summary || summary,
+                      }));
+                    }, 0);
+                    setStep('details');
+                  }}
+                  onBack={() => setEvmSubType(null)}
+                />
+              )}
+
+              {!evmSubType && (
+                <div className="flex justify-between gap-3 pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep('type')}
+                    size="lg"
+                  >
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    Back
+                  </Button>
+                </div>
+              )}
+            </div>
           )}
 
-          {proposalType?.id === 'evm_register_erc20' && (
-            <EvmRegisterErc20Form
-              onSubmit={(data) => {
-                setEvmErc20Data(data);
-                setTimeout(() => {
-                  const title = generateErc20RegistrationTitle(data.erc20Addresses);
-                  const summary = generateErc20RegistrationSummary(data.erc20Addresses);
-                  setMetadata(prev => ({
-                    ...prev,
-                    title: prev.title || title,
-                    summary: prev.summary || summary,
-                  }));
-                }, 0);
-                setStep('details');
-              }}
-              onBack={() => setStep('type')}
-            />
-          )}
-
-          {proposalType?.id === 'evm_toggle_conversion' && (
-            <EvmToggleConversionForm
-              onSubmit={(data) => {
-                setEvmToggleConversionData(data);
-                setTimeout(() => {
-                  const title = generateToggleConversionTitle(data.token);
-                  const summary = generateToggleConversionSummary(data.token);
-                  setMetadata(prev => ({
-                    ...prev,
-                    title: prev.title || title,
-                    summary: prev.summary || summary,
-                  }));
-                }, 0);
-                setStep('details');
-              }}
-              onBack={() => setStep('type')}
-            />
+          {proposalType?.id === 'custom_message' && (
+            <>
+              <CustomMessageForm
+                onSubmit={(data) => {
+                  setCustomMessageData(data);
+                  setStep('details');
+                }}
+              />
+              <div className="flex justify-between gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep('type')}
+                  size="lg"
+                >
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+              </div>
+            </>
           )}
         </div>
       )}

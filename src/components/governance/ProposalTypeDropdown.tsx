@@ -57,22 +57,18 @@ const categoryLabels: Record<ProposalCategory, string> = {
 export function ProposalTypeDropdown({ onSelect, selectedType }: ProposalTypeDropdownProps) {
   const [open, setOpen] = useState(false);
 
-  const proposalsByCategory = Object.values(PROPOSAL_TYPES).reduce((acc, proposal) => {
-    if (!acc[proposal.category]) {
-      acc[proposal.category] = [];
-    }
-    acc[proposal.category].push(proposal);
-    return acc;
-  }, {} as Record<ProposalCategory, ProposalType[]>);
-
-  const categories = Object.keys(proposalsByCategory) as ProposalCategory[];
+  const proposals = Object.values(PROPOSAL_TYPES);
 
   const handleSelect = (proposalId: string) => {
-    const proposal = Object.values(PROPOSAL_TYPES).find(p => p.id === proposalId);
+    const proposal = proposals.find(p => p.id === proposalId);
     if (proposal) {
       onSelect(proposal);
       setOpen(false);
     }
+  };
+
+  const getProposalIcon = (category: ProposalCategory) => {
+    return categoryIcons[category] || Settings;
   };
 
   return (
@@ -88,29 +84,24 @@ export function ProposalTypeDropdown({ onSelect, selectedType }: ProposalTypeDro
           <SelectValue placeholder="Select a proposal type..." />
         </SelectTrigger>
         <SelectContent className="max-h-[400px] bg-background z-[100]">
-          {categories.map((category) => {
-            const Icon = categoryIcons[category];
+          {proposals.map((proposalType) => {
+            const Icon = getProposalIcon(proposalType.category);
             return (
-              <SelectGroup key={category}>
-                <SelectLabel className="flex items-center gap-2 text-sm font-semibold py-2">
-                  <Icon className="h-4 w-4" />
-                  {categoryLabels[category]}
-                </SelectLabel>
-                {proposalsByCategory[category].map((proposalType) => (
-                  <SelectItem
-                    key={proposalType.id}
-                    value={proposalType.id}
-                    className="pl-8 py-3 cursor-pointer"
-                  >
-                    <div className="flex flex-col gap-1">
-                      <div className="font-medium">{proposalType.name}</div>
-                      <div className="text-xs text-muted-foreground line-clamp-2">
-                        {proposalType.description}
-                      </div>
+              <SelectItem
+                key={proposalType.id}
+                value={proposalType.id}
+                className="py-3 cursor-pointer"
+              >
+                <div className="flex items-start gap-3">
+                  <Icon className="h-5 w-5 mt-0.5 text-muted-foreground" />
+                  <div className="flex flex-col gap-1">
+                    <div className="font-medium">{proposalType.name}</div>
+                    <div className="text-xs text-muted-foreground line-clamp-2">
+                      {proposalType.description}
                     </div>
-                  </SelectItem>
-                ))}
-              </SelectGroup>
+                  </div>
+                </div>
+              </SelectItem>
             );
           })}
         </SelectContent>
